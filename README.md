@@ -45,6 +45,7 @@ Built on [jeffersongoncalves/laravel-saved-filter](https://github.com/jeffersong
 
 ```bash
 composer require jeffersongoncalves/filament-saved-filter:"^1.0"
+php artisan vendor:publish --tag="saved-filter-migrations"
 php artisan migrate
 ```
 
