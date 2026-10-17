@@ -23,6 +23,8 @@ return [
             'submit' => 'Save changes',
             'notification' => 'Views updated',
         ],
+        'email' => ['label' => 'Email this view', 'notification' => 'The report is on its way to your inbox.'],
+        'report' => ['label' => 'Email report', 'description' => 'Get this view by email on a schedule. Only you receive it.', 'notification' => 'Email report saved'],
         'export' => [
             'label' => 'Export views',
         ],
@@ -40,6 +42,11 @@ return [
         'is_public' => 'Share with my team',
         'as_preset' => 'Save as a locked preset for everyone',
         'file' => 'JSON file',
+        'report_active' => 'Send me this view by email',
+        'frequency' => 'Frequency',
+        'day' => 'Day',
+        'time' => 'Time',
+        'format' => 'Format',
     ],
     'colors' => [
         'primary' => 'Primary',
@@ -54,6 +61,7 @@ return [
         'shared' => 'Shared',
         'modified' => 'Modified',
     ],
+    'frequencies' => ['daily' => 'Daily', 'weekly' => 'Weekly', 'monthly' => 'Monthly'],
     'tabs' => [
         'all' => 'All',
     ],

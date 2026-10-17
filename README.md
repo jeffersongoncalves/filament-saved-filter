@@ -29,7 +29,8 @@ Built on [jeffersongoncalves/laravel-saved-filter](https://github.com/jeffersong
 - **Manage views** — rename, reorder, change icon/color, set the default and delete, in a slide-over.
 - **Update view** — overwrite the active filter with the current table state.
 - **Modified badge + revert** — once the table drifts from the active view, the "Views" button shows *Modified* and **Revert changes** restores the saved state.
-- **Export / import** — download the views as JSON and upload them in another environment (files up to 1 MB; rows with malformed fields are skipped, a view with the same name is overwritten).
+- **Email reports** (opt-in) — "Email this view" sends the records as CSV/XLSX now; each user can schedule the report of any view they see (daily, weekly or monthly), for themselves only.
+- **Export / import** (opt-in) — download the views as JSON and upload them in another environment (files up to 1 MB; rows with malformed fields are skipped, a view with the same name is overwritten).
 - **Safe restores** — filters, columns and sort columns that no longer exist in the table are skipped, no exceptions.
 - **Multi-tenancy** — scoped to the Filament tenant; database-per-tenant setups work as is.
 - **Events** for auditing, **19 languages**, Filament 3, 4 and 5.
@@ -90,8 +91,9 @@ SavedFilterPlugin::make()
     ->canShare(fn () => auth()->user()->can('share-views')) // who may share views with the team (default: everyone)
     ->canManagePresets(fn () => auth()->user()->isAdmin())  // who may create/edit locked presets (default: nobody)
     ->scopedToTenant(false)                                 // ignore the Filament tenant (default: scoped)
-    ->exportable(false)                                     // hide "Export views"
-    ->importable(false)                                     // hide "Import views"
+    ->exportable()                                          // show "Export views" (default: off)
+    ->importable()                                          // show "Import views" (default: off)
+    ->emailReports()                                        // "Email this view" + scheduled email reports (default: off)
     ->keyBindings(save: ['mod+shift+s'], manage: null)      // change or disable (null) the action shortcuts
     ->tabShortcuts(),                                       // Alt+1…9 / Alt+] / Alt+[ to switch views (default: off)
 ```
@@ -135,6 +137,26 @@ public function getSavedFilterResource(): string
     return 'orders';
 }
 ```
+
+## Email reports
+
+Turn them on with `->emailReports()` and tell each list page which [Filament exporter](https://filamentphp.com/docs/actions/export) builds the file. Pages without one don't show the actions.
+
+```php
+use App\Filament\Exports\OrderExporter;
+
+public function getSavedFilterExporter(): ?string
+{
+    return OrderExporter::class;
+}
+```
+
+- **Email this view** sends the current table state (saved or not) to the user, as CSV or XLSX.
+- **Email report** on the active view: each user turns a report on or off for themselves, on their own views, shared ones and presets, and picks daily, weekly or monthly, the day, the time (app timezone) and the format. It goes only to that user.
+- The file uses the exporter's columns enabled by default and its formatting, on the records of the view as that user sees them: the report is built with their login and tenant, and nothing is sent when they lost access to the resource or the tenant, or when the view is no longer shared with them.
+- The users need an `email` attribute and the app needs a working mailer and queue.
+
+Scheduling and delivery come from [laravel-saved-filter](https://github.com/jeffersongoncalves/laravel-saved-filter): `saved-filter:send-reports` is registered on the scheduler every 15 minutes, so the server only needs `php artisan schedule:run` in cron. Reports are mailed as attachments: keep them to views whose size your mail provider accepts.
 
 ## Presets
 

@@ -348,43 +348,56 @@ it('lets preset managers save locked presets', function () {
     SavedFilterPlugin::current()->canManagePresets(false);
 });
 
-it('exports the visible filters', function () {
+it('hides export and import unless turned on', function () {
     savedFilter();
 
     Livewire::test(ListPosts::class)
-        ->callTableAction('exportSavedFilters')
-        ->assertFileDownloaded('saved-filters.json');
+        ->assertTableActionHidden('exportSavedFilters')
+        ->assertTableActionHidden('importSavedFilters');
 });
 
-it('imports filters of this table as the user\'s own', function () {
-    $json = json_encode(['saved_filters' => [
-        ['resource' => PostResource::class, 'name' => 'Imported', 'filters' => ['status' => ['value' => 'draft']], 'is_locked' => true, 'is_public' => true],
-        ['resource' => 'Other\\Resource', 'name' => 'Elsewhere'],
-    ]]);
+describe('export and import', function () {
+    beforeEach(fn () => SavedFilterPlugin::current()->exportable()->importable());
+    afterEach(fn () => SavedFilterPlugin::current()->exportable(false)->importable(false));
 
-    Livewire::test(ListPosts::class)
-        ->callTableAction('importSavedFilters', data: ['file' => UploadedFile::fake()->createWithContent('saved-filters.json', $json)])
-        ->assertNotified();
+    it('exports the visible filters', function () {
+        savedFilter();
 
-    expect(SavedFilter::query()->sole())
-        ->name->toBe('Imported')
-        ->is_locked->toBeFalse()
-        ->is_public->toBeTrue()
-        ->isOwnedBy($this->user)->toBeTrue();
-});
+        Livewire::test(ListPosts::class)
+            ->callTableAction('exportSavedFilters')
+            ->assertFileDownloaded('saved-filters.json');
+    });
 
-it('skips imported rows the columns can\'t hold', function () {
-    $json = json_encode(['saved_filters' => [
-        ['resource' => PostResource::class, 'name' => str_repeat('x', 256)],
-        ['resource' => PostResource::class, 'name' => 'Bad filters', 'filters' => 'nope'],
-        ['resource' => PostResource::class, 'name' => 'Bad search', 'search' => ['nested']],
-        ['resource' => PostResource::class, 'name' => 'Fine'],
-    ]]);
+    it('imports filters of this table as the user\'s own', function () {
+        $json = json_encode(['saved_filters' => [
+            ['resource' => PostResource::class, 'name' => 'Imported', 'filters' => ['status' => ['value' => 'draft']], 'is_locked' => true, 'is_public' => true],
+            ['resource' => 'Other\\Resource', 'name' => 'Elsewhere'],
+        ]]);
 
-    Livewire::test(ListPosts::class)
-        ->callTableAction('importSavedFilters', data: ['file' => UploadedFile::fake()->createWithContent('saved-filters.json', $json)]);
+        Livewire::test(ListPosts::class)
+            ->callTableAction('importSavedFilters', data: ['file' => UploadedFile::fake()->createWithContent('saved-filters.json', $json)])
+            ->assertNotified();
 
-    expect(SavedFilter::query()->pluck('name')->all())->toBe(['Fine']);
+        expect(SavedFilter::query()->sole())
+            ->name->toBe('Imported')
+            ->is_locked->toBeFalse()
+            ->is_public->toBeTrue()
+            ->isOwnedBy($this->user)->toBeTrue();
+    });
+
+    it('skips imported rows the columns can\'t hold', function () {
+        $json = json_encode(['saved_filters' => [
+            ['resource' => PostResource::class, 'name' => str_repeat('x', 256)],
+            ['resource' => PostResource::class, 'name' => 'Bad filters', 'filters' => 'nope'],
+            ['resource' => PostResource::class, 'name' => 'Bad search', 'search' => ['nested']],
+            ['resource' => PostResource::class, 'name' => 'Fine'],
+        ]]);
+
+        Livewire::test(ListPosts::class)
+            ->callTableAction('importSavedFilters', data: ['file' => UploadedFile::fake()->createWithContent('saved-filters.json', $json)]);
+
+        expect(SavedFilter::query()->pluck('name')->all())->toBe(['Fine']);
+    });
 });
 
 it('uses translated labels', function () {

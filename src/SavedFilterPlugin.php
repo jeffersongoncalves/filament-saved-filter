@@ -21,11 +21,13 @@ class SavedFilterPlugin implements Plugin
 
     protected bool $scopedToTenant = true;
 
-    protected bool $exportable = true;
+    protected bool $exportable = false;
 
-    protected bool $importable = true;
+    protected bool $importable = false;
 
     protected bool $tabShortcuts = false;
+
+    protected bool $emailReports = false;
 
     /** @var array<string>|null */
     protected ?array $saveKeyBindings = ['mod+shift+s'];
@@ -127,6 +129,7 @@ class SavedFilterPlugin implements Plugin
         return $this->scopedToTenant;
     }
 
+    /** Show "Export views" (download the views as JSON). Off by default. */
     public function exportable(bool $condition = true): static
     {
         $this->exportable = $condition;
@@ -139,6 +142,7 @@ class SavedFilterPlugin implements Plugin
         return $this->exportable;
     }
 
+    /** Show "Import views" (upload a JSON export as the user's own views). Off by default. */
     public function importable(bool $condition = true): static
     {
         $this->importable = $condition;
@@ -162,6 +166,22 @@ class SavedFilterPlugin implements Plugin
     public function hasTabShortcuts(): bool
     {
         return $this->tabShortcuts;
+    }
+
+    /**
+     * "Email this view" and scheduled email reports, on pages that return an Exporter from getSavedFilterExporter().
+     * Off by default.
+     */
+    public function emailReports(bool $condition = true): static
+    {
+        $this->emailReports = $condition;
+
+        return $this;
+    }
+
+    public function hasEmailReports(): bool
+    {
+        return $this->emailReports;
     }
 
     /**

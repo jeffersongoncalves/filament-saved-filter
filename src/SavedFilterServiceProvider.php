@@ -5,6 +5,7 @@ namespace JeffersonGoncalves\Filament\SavedFilter;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use JeffersonGoncalves\Filament\SavedFilter\Concerns\HasSavedFilters;
+use JeffersonGoncalves\SavedFilter\Contracts\BuildsSavedFilterReports;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
@@ -16,6 +17,12 @@ class SavedFilterServiceProvider extends PackageServiceProvider
             ->name('filament-saved-filter')
             ->hasTranslations()
             ->hasViews();
+    }
+
+    public function packageRegistered(): void
+    {
+        // laravel-saved-filter schedules and mails the reports; the files come from the Filament pages.
+        $this->app->bindIf(BuildsSavedFilterReports::class, FilamentReportBuilder::class);
     }
 
     public function packageBooted(): void
