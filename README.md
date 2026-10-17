@@ -20,7 +20,7 @@ Built on [jeffersongoncalves/laravel-saved-filter](https://github.com/jeffersong
 
 ## Features
 
-- **Save current view** — filters, sort, search, per-column searches, toggled columns, records per page and grouping, with a name, icon and color.
+- **Save current view** — filters, sort, search, per-column searches, toggled columns, column order, records per page and grouping, with a name, icon and color.
 - **Tabs or dropdown** — one tab per saved filter (plus "All"), or a list in the "Views" menu.
 - **Default view** — opened automatically when the user lands on the table (a URL with filters still wins).
 - **Team views** — share a filter with the other users of the tenant. Tabs show who else sees a view: **Preset**, **Shared**, or the colleague who created it.
@@ -99,6 +99,8 @@ SavedFilterPlugin::make()
 ```
 
 With `tabShortcuts()`, `Alt+1` opens "All", `Alt+2` the first saved view and so on, `Alt+]` / `Alt+[` cycle through them. Physical keys are used, so it works on any keyboard layout and with the macOS Option key.
+
+On tables with `->reorderableColumns()` (Filament 4 and 5), a view also keeps the column order the user dragged in the column manager; columns added to the table later go last, removed ones are skipped. Until the user reorders, a view follows the table's own order.
 
 Records per page and grouping are only restored when the table still offers them (`->paginationPageOptions()`, `->groups()`); otherwise the table's defaults are used.
 
