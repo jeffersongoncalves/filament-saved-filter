@@ -23,6 +23,8 @@ $panel->plugins([
         // ->dropdown()
         // ->canShare(fn () => true)
         // ->canManagePresets(fn () => auth()->user()->isAdmin())
+        // ->keyBindings(save: ['mod+shift+s'], manage: ['mod+shift+m'])
+        // ->tabShortcuts()
         ,
 ]);
 

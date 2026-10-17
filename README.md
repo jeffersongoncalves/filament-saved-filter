@@ -20,10 +20,11 @@ Built on [jeffersongoncalves/laravel-saved-filter](https://github.com/jeffersong
 
 ## Features
 
-- **Save current view** — filters, sort, search and toggled columns, with a name, icon and color.
+- **Save current view** — filters, sort, search, toggled columns, records per page and grouping, with a name, icon and color.
 - **Tabs or dropdown** — one tab per saved filter (plus "All"), or a list in the "Views" menu.
 - **Default view** — opened automatically when the user lands on the table (a URL with filters still wins).
-- **Team views** — share a filter with the other users of the tenant.
+- **Team views** — share a filter with the other users of the tenant. Tabs show who else sees a view: **Preset**, **Shared**, or the colleague who created it.
+- **Keyboard shortcuts** — `Ctrl/Cmd+Shift+S` saves the current view, `Ctrl/Cmd+Shift+M` opens "Manage views"; opt-in `Alt+1…9` and `Alt+]` / `Alt+[` to switch views. Shortcuts never fire while typing in a field.
 - **Locked presets** — created in a seeder or by users you allow; everyone sees them, nobody changes them.
 - **Manage views** — rename, reorder, change icon/color, set the default and delete, in a slide-over.
 - **Update view** — overwrite the active filter with the current table state.
@@ -86,8 +87,14 @@ SavedFilterPlugin::make()
     ->canManagePresets(fn () => auth()->user()->isAdmin())  // who may create/edit locked presets (default: nobody)
     ->scopedToTenant(false)                                 // ignore the Filament tenant (default: scoped)
     ->exportable(false)                                     // hide "Export views"
-    ->importable(false),                                    // hide "Import views"
+    ->importable(false)                                     // hide "Import views"
+    ->keyBindings(save: ['mod+shift+s'], manage: null)      // change or disable (null) the action shortcuts
+    ->tabShortcuts(),                                       // Alt+1…9 / Alt+] / Alt+[ to switch views (default: off)
 ```
+
+With `tabShortcuts()`, `Alt+1` opens "All", `Alt+2` the first saved view and so on, `Alt+]` / `Alt+[` cycle through them. Physical keys are used, so it works on any keyboard layout and with the macOS Option key.
+
+Records per page and grouping are only restored when the table still offers them (`->paginationPageOptions()`, `->groups()`); otherwise the table's defaults are used.
 
 ### Your own tabs
 
@@ -160,7 +167,7 @@ Missing your language? Copy `resources/lang/en/saved-filter.php` and open a pull
 
 ## Roadmap
 
-- Save the column order (Filament 4/5 reorderable columns) and the record grouping.
+- Save the column order (Filament 4/5 reorderable columns).
 - Saved filters for relation managers and custom table pages.
 - Per-view badge with the record count.
 
