@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.2.0 - 2026-10-17
+
+### What's new
+
+- **Per-column searches** are saved and restored with each view. Searches on columns that are no longer individually searchable are ignored.
+- **Modified badge + revert**: once the table drifts from the active view, the Views button shows *Modified* and **Revert changes** restores the saved state.
+- **Safer JSON import**: files are capped at 1 MB and rows with malformed fields are skipped instead of failing the whole import.
+- Tests now run on SQLite, MySQL 8.4 and PostgreSQL 17.
+
+### Upgrading
+
+Requires `jeffersongoncalves/laravel-saved-filter` ^1.3. Publish and migrate again to add the `column_searches` column (migrations already run are skipped):
+
+```bash
+php artisan vendor:publish --tag="saved-filter-migrations"
+php artisan migrate
+
+```
 ## 1.1.0 - 2026-10-17
 
 - Views also save records per page and grouping (needs laravel-saved-filter ^1.1: run `php artisan migrate`).
