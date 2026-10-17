@@ -214,3 +214,15 @@ it('builds a report only inside the subscriber\'s own tenant', function () {
         ->and($build(['tenant_id' => $theirs->id]))->toBeNull()
         ->and($build(['tenant' => null]))->toBeNull();
 });
+
+it('drops the previous report\'s tenant, as a queue worker would keep it', function () {
+    $team = Team::query()->create(['name' => 'Mine']);
+    Post::query()->create(['title' => 'Team post', 'status' => 'draft', 'team_id' => $team->id]);
+    $member = Member::query()->create(['name' => 'Cid', 'email' => 'cid@example.com', 'team_id' => $team->id]);
+    $builder = app(BuildsSavedFilterReports::class);
+
+    $builder->build($member, [], 'Posts', 'csv', ['panel' => 'tenant', 'page' => ListPosts::class, 'tenant_id' => $team->id]);
+
+    expect($builder->build($this->ana, [], 'Posts', 'csv', ['panel' => 'test', 'page' => ListPosts::class])->count)->toBe(3)
+        ->and(Filament::getTenant())->toBeNull();
+});
