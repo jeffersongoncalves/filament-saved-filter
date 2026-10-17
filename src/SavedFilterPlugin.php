@@ -25,6 +25,14 @@ class SavedFilterPlugin implements Plugin
 
     protected bool $importable = true;
 
+    protected bool $tabShortcuts = false;
+
+    /** @var array<string>|null */
+    protected ?array $saveKeyBindings = ['mod+shift+s'];
+
+    /** @var array<string>|null */
+    protected ?array $manageKeyBindings = ['mod+shift+m'];
+
     public function getId(): string
     {
         return 'filament-saved-filter';
@@ -141,5 +149,44 @@ class SavedFilterPlugin implements Plugin
     public function isImportable(): bool
     {
         return $this->importable;
+    }
+
+    /** Alt+1..9 jumps to the Nth view ("All" first), Alt+] / Alt+[ cycles through them. Off by default. */
+    public function tabShortcuts(bool $condition = true): static
+    {
+        $this->tabShortcuts = $condition;
+
+        return $this;
+    }
+
+    public function hasTabShortcuts(): bool
+    {
+        return $this->tabShortcuts;
+    }
+
+    /**
+     * Keyboard shortcuts of the "Save current view" and "Manage views" actions; null disables one.
+     *
+     * @param  array<string>|null  $save
+     * @param  array<string>|null  $manage
+     */
+    public function keyBindings(?array $save = ['mod+shift+s'], ?array $manage = ['mod+shift+m']): static
+    {
+        $this->saveKeyBindings = $save;
+        $this->manageKeyBindings = $manage;
+
+        return $this;
+    }
+
+    /** @return array<string>|null */
+    public function getSaveKeyBindings(): ?array
+    {
+        return $this->saveKeyBindings;
+    }
+
+    /** @return array<string>|null */
+    public function getManageKeyBindings(): ?array
+    {
+        return $this->manageKeyBindings;
     }
 }

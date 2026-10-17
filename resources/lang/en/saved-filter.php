@@ -46,6 +46,10 @@ return [
         'warning' => 'Warning',
         'danger' => 'Danger',
     ],
+    'badges' => [
+        'preset' => 'Preset',
+        'shared' => 'Shared',
+    ],
     'tabs' => [
         'all' => 'All',
     ],

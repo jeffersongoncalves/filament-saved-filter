@@ -20,5 +20,6 @@ return [
         'file' => 'JSON-файл',
     ],
     'colors' => ['primary' => 'Основной', 'gray' => 'Серый', 'info' => 'Информация', 'success' => 'Успех', 'warning' => 'Предупреждение', 'danger' => 'Опасность'],
+    'badges' => ['preset' => 'Шаблон', 'shared' => 'Общий'],
     'tabs' => ['all' => 'Все'],
 ];

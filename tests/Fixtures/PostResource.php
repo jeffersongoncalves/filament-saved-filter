@@ -21,7 +21,9 @@ class PostResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')->options(['draft' => 'Draft', 'published' => 'Published']),
-            ]);
+            ])
+            ->groups(['status'])
+            ->paginationPageOptions([5, 10, 25]);
     }
 
     public static function getPages(): array

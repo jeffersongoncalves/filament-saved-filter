@@ -193,6 +193,85 @@ it('renames, reorders and deletes from the manage slide-over', function () {
         ->and($preset->refresh()->name)->toBe('Company preset');
 });
 
+it('saves and restores records per page and grouping', function () {
+    Livewire::test(ListPosts::class)
+        ->set('tableRecordsPerPage', 25)
+        ->set('tableGrouping', 'status:desc')
+        ->callTableAction('saveSavedFilter', data: ['name' => 'Grouped']);
+
+    $filter = SavedFilter::query()->sole();
+
+    expect($filter->only(['records_per_page', 'grouping', 'grouping_direction']))
+        ->toBe(['records_per_page' => '25', 'grouping' => 'status', 'grouping_direction' => 'desc']);
+
+    Livewire::test(ListPosts::class)
+        ->set('activeTab', "saved-{$filter->id}")
+        ->assertSet('tableRecordsPerPage', 25)
+        ->assertSet('tableGrouping', 'status:desc')
+        ->set('activeTab', 'all')
+        ->assertSet('tableRecordsPerPage', 10)
+        ->assertSet('tableGrouping', null);
+});
+
+it('ignores pagination options and groups the table no longer has', function () {
+    $filter = savedFilter(['records_per_page' => '999', 'grouping' => 'gone']);
+
+    Livewire::test(ListPosts::class)
+        ->set('activeTab', "saved-{$filter->id}")
+        ->assertSet('tableRecordsPerPage', 10)
+        ->assertSet('tableGrouping', null);
+});
+
+it('badges presets, shared views and views of colleagues', function () {
+    $bob = User::query()->forceCreate(['name' => 'Bob']);
+    savedFilter(['name' => 'Bob public', 'is_public' => true], $bob);
+    savedFilter(['name' => 'Mine shared', 'is_public' => true]);
+    preset(['name' => 'Company preset']);
+
+    $tabs = Livewire::test(ListPosts::class)->instance()->getSavedFilterTabs();
+
+    expect(collect($tabs)->map->getBadge()->filter()->values()->all())->toBe(['Bob', 'Shared', 'Preset']);
+});
+
+it('binds keyboard shortcuts to save and manage', function () {
+    savedFilter();
+
+    Livewire::test(ListPosts::class)
+        ->assertTableActionExists('saveSavedFilter', fn ($action) => $action->getKeyBindings() === ['mod+shift+s'])
+        ->assertTableActionExists('manageSavedFilters', fn ($action) => $action->getKeyBindings() === ['mod+shift+m']);
+});
+
+it('switches views by position and cycles through them', function () {
+    $first = savedFilter(['name' => 'First']);
+    $second = savedFilter(['name' => 'Second', 'filters' => ['status' => ['value' => 'draft']]]);
+
+    Livewire::test(ListPosts::class)
+        ->call('selectSavedFilter', 2)
+        ->assertSet('activeTab', "saved-{$second->id}")
+        ->assertCanNotSeeTableRecords([$this->published])
+        ->call('cycleSavedFilter', 1)
+        ->assertSet('activeTab', 'all')
+        ->assertSet('activeSavedFilter', null)
+        ->call('cycleSavedFilter', 1)
+        ->assertSet('activeSavedFilter', $first->id)
+        ->call('cycleSavedFilter', -1)
+        ->assertSet('activeSavedFilter', null)
+        ->call('selectSavedFilter', 9)
+        ->assertSet('activeSavedFilter', null);
+});
+
+it('renders the Alt+N listener only when turned on', function () {
+    savedFilter();
+
+    Livewire::test(ListPosts::class)->assertDontSeeHtml('data-saved-filter-shortcuts');
+
+    SavedFilterPlugin::current()->tabShortcuts();
+
+    Livewire::test(ListPosts::class)->assertSeeHtml('data-saved-filter-shortcuts');
+
+    SavedFilterPlugin::current()->tabShortcuts(false);
+});
+
 it('explains the manage slide-over and labels its submit button', function () {
     savedFilter();
 
