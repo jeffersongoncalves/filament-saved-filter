@@ -2,7 +2,8 @@
 
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Auth\User;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Notification;
 use JeffersonGoncalves\Filament\SavedFilter\SavedFilterPlugin;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\ListPosts;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\Member;
@@ -10,15 +11,15 @@ use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\Post;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\PostResource;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\Team;
 use JeffersonGoncalves\SavedFilter\Contracts\BuildsSavedFilterReports;
-use JeffersonGoncalves\SavedFilter\Mail\SavedFilterReportMail;
 use JeffersonGoncalves\SavedFilter\Models\SavedFilter;
 use JeffersonGoncalves\SavedFilter\Models\SavedFilterReport;
+use JeffersonGoncalves\SavedFilter\Notifications\SavedFilterReportNotification;
 use Livewire\Livewire;
 
 beforeEach(function () {
     Filament::setCurrentPanel(Filament::getPanel('test'));
     SavedFilterPlugin::current()->emailReports();
-    Mail::fake();
+    Notification::fake();
 
     $this->ana = User::query()->forceCreate(['name' => 'Ana', 'email' => 'ana@example.com']);
     $this->bob = User::query()->forceCreate(['name' => 'Bob', 'email' => 'bob@example.com']);
@@ -66,20 +67,20 @@ it('emails the current view on demand, built with the page exporter', function (
         ->callTableAction('emailSavedFilter', data: ['format' => 'csv'])
         ->assertNotified();
 
-    Mail::assertSent(SavedFilterReportMail::class, function (SavedFilterReportMail $mail) {
-        return $mail->hasTo('ana@example.com')
-            && $mail->viewName === 'Drafts'
-            && $mail->count === 1
-            && $mail->content === "Title,Status\n\"Work in progress\",draft\n";
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, function (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) {
+        return $notifiable->routes['mail'] === 'ana@example.com'
+            && $notification->viewName === 'Drafts'
+            && $notification->count === 1
+            && $notification->content === "Title,Status\n\"Work in progress\",draft\n";
     });
 });
 
 it('builds an xlsx file', function () {
     Livewire::test(ListPosts::class)->callTableAction('emailSavedFilter', data: ['format' => 'xlsx']);
 
-    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->count === 2
-        && str_starts_with($mail->content, 'PK')
-        && str_ends_with($mail->fileName, '.xlsx'));
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notification->count === 2
+        && str_starts_with($notification->content, 'PK')
+        && str_ends_with($notification->fileName, '.xlsx'));
 });
 
 it('lets each user subscribe to a shared view, and sends it to that user only', function () {
@@ -101,19 +102,19 @@ it('sends due reports once per occurrence and skips turned off ones', function (
     subscribe($this->ana, $this->drafts, ['is_active' => false]);
 
     $this->artisan('saved-filter:send-reports')->assertSuccessful();
-    Mail::assertNothingSent();
+    Notification::assertNothingSent();
 
     $this->travelTo(now()->setTime(8, 10));
     $this->artisan('saved-filter:send-reports');
     $this->artisan('saved-filter:send-reports');
 
-    Mail::assertSent(SavedFilterReportMail::class, 1);
-    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->hasTo('bob@example.com') && $mail->count === 1);
+    Notification::assertSentOnDemandTimes(SavedFilterReportNotification::class, 1);
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['mail'] === 'bob@example.com' && $notification->count === 1);
 
     $this->travelTo(now()->addDay());
     $this->artisan('saved-filter:send-reports');
 
-    Mail::assertSent(SavedFilterReportMail::class, 2);
+    Notification::assertSentOnDemandTimes(SavedFilterReportNotification::class, 2);
 });
 
 it('stops sending a view that is no longer shared', function () {
@@ -124,7 +125,7 @@ it('stops sending a view that is no longer shared', function () {
     $this->travelTo(now()->setTime(8, 10));
     $this->artisan('saved-filter:send-reports');
 
-    Mail::assertNothingSent();
+    Notification::assertNothingSent();
 });
 
 it('keeps the settings of a turned off report and fills them back', function () {
@@ -181,13 +182,13 @@ it('links the email to the view, or to the page once the table drifted from it',
         ->set('activeTab', "saved-{$this->drafts->id}")
         ->callTableAction('emailSavedFilter', data: ['format' => 'csv']);
 
-    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->url === ListPosts::getUrl(['tab' => "saved-{$this->drafts->id}"], panel: 'test')
-        && $mail->schedule === null);
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notification->url === ListPosts::getUrl(['tab' => "saved-{$this->drafts->id}"], panel: 'test')
+        && $notification->schedule === null);
 
-    Mail::fake();
+    Notification::fake();
     $component->searchTable('Work')->callTableAction('emailSavedFilter', data: ['format' => 'csv']);
 
-    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->url === ListPosts::getUrl(panel: 'test'));
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notification->url === ListPosts::getUrl(panel: 'test'));
 });
 
 it('tells when a scheduled report goes out and links to its view', function () {
@@ -197,8 +198,8 @@ it('tells when a scheduled report goes out and links to its view', function () {
     $this->travelTo(now()->setTime(8, 10));
     $this->artisan('saved-filter:send-reports');
 
-    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => filled($mail->schedule)
-        && $mail->url === ListPosts::getUrl(['tab' => "saved-{$this->drafts->id}"], panel: 'test'));
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => filled($notification->schedule)
+        && $notification->url === ListPosts::getUrl(['tab' => "saved-{$this->drafts->id}"], panel: 'test'));
 });
 
 it('skips an empty report only when asked to', function () {
@@ -210,8 +211,8 @@ it('skips an empty report only when asked to', function () {
     $this->travelTo(now()->setTime(8, 10));
     $this->artisan('saved-filter:send-reports');
 
-    Mail::assertSent(SavedFilterReportMail::class, 1);
-    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->hasTo('ana@example.com') && $mail->count === 0);
+    Notification::assertSentOnDemandTimes(SavedFilterReportNotification::class, 1);
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['mail'] === 'ana@example.com' && $notification->count === 0);
 });
 
 it('neutralizes spreadsheet formulas in the records', function () {
@@ -219,8 +220,8 @@ it('neutralizes spreadsheet formulas in the records', function () {
 
     Livewire::test(ListPosts::class)->callTableAction('emailSavedFilter', data: ['format' => 'csv']);
 
-    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => str_contains($mail->content, "'=HYPERLINK")
-        && str_contains($mail->content, ',-5'));
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => str_contains($notification->content, "'=HYPERLINK")
+        && str_contains($notification->content, ',-5'));
 });
 
 it('builds a report only inside the subscriber\'s own tenant', function () {
