@@ -360,6 +360,10 @@ describe('export and import', function () {
     beforeEach(fn () => SavedFilterPlugin::current()->exportable()->importable());
     afterEach(fn () => SavedFilterPlugin::current()->exportable(false)->importable(false));
 
+    it('hides export when there is nothing to export', function () {
+        Livewire::test(ListPosts::class)->assertTableActionHidden('exportSavedFilters');
+    });
+
     it('exports the visible filters', function () {
         savedFilter();
 

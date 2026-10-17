@@ -26,6 +26,7 @@ return [
         'day' => 'Dzień',
         'time' => 'Godzina',
         'format' => 'Format',
+        'skip_empty' => 'Nie wysyłaj, gdy nie ma rekordów',
     ],
     'colors' => ['primary' => 'Podstawowy', 'gray' => 'Szary', 'info' => 'Informacja', 'success' => 'Sukces', 'warning' => 'Ostrzeżenie', 'danger' => 'Niebezpieczeństwo'],
     'badges' => ['preset' => 'Szablon', 'shared' => 'Udostępniony', 'modified' => 'Zmieniony'],

@@ -26,6 +26,7 @@ return [
         'day' => 'Kun',
         'time' => 'Vaqt',
         'format' => 'Format',
+        'skip_empty' => 'Yozuv bo\'lmasa yubormaslik',
     ],
     'colors' => ['primary' => 'Asosiy', 'gray' => 'Kulrang', 'info' => 'Maʼlumot', 'success' => 'Muvaffaqiyat', 'warning' => 'Ogohlantirish', 'danger' => 'Xavf'],
     'badges' => ['preset' => 'Andoza', 'shared' => 'Ulashilgan', 'modified' => 'O\'zgartirilgan'],

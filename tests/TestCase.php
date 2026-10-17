@@ -16,6 +16,7 @@ use Filament\Widgets\WidgetsServiceProvider;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use JeffersonGoncalves\Filament\SavedFilter\SavedFilterServiceProvider;
+use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\TenantPanelProvider;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\TestPanelProvider;
 use JeffersonGoncalves\PestPluginDatabaseMigrations\LoadsPackageMigrations;
 use JeffersonGoncalves\SavedFilter\SavedFilterServiceProvider as LaravelSavedFilterServiceProvider;
@@ -52,6 +53,7 @@ class TestCase extends Orchestra
             LaravelSavedFilterServiceProvider::class,
             SavedFilterServiceProvider::class,
             TestPanelProvider::class,
+            TenantPanelProvider::class,
         ];
     }
 
@@ -92,15 +94,23 @@ class TestCase extends Orchestra
     {
         $this->loadPackageMigrations(LaravelSavedFilterServiceProvider::class);
 
+        Schema::create('teams', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->nullable();
+            $table->unsignedBigInteger('team_id')->nullable();
             $table->timestamps();
         });
 
         Schema::create('posts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('team_id')->nullable();
             $table->string('title');
             $table->string('status');
             $table->timestamps();
@@ -110,6 +120,7 @@ class TestCase extends Orchestra
         $this->beforeApplicationDestroyed(function () {
             Schema::dropIfExists('posts');
             Schema::dropIfExists('users');
+            Schema::dropIfExists('teams');
         });
     }
 }

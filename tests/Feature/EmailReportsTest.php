@@ -5,8 +5,11 @@ use Illuminate\Foundation\Auth\User;
 use Illuminate\Support\Facades\Mail;
 use JeffersonGoncalves\Filament\SavedFilter\SavedFilterPlugin;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\ListPosts;
+use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\Member;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\Post;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\PostResource;
+use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\Team;
+use JeffersonGoncalves\SavedFilter\Contracts\BuildsSavedFilterReports;
 use JeffersonGoncalves\SavedFilter\Mail\SavedFilterReportMail;
 use JeffersonGoncalves\SavedFilter\Models\SavedFilter;
 use JeffersonGoncalves\SavedFilter\Models\SavedFilterReport;
@@ -89,7 +92,7 @@ it('lets each user subscribe to a shared view, and sends it to that user only', 
         ->time->toBe('09:30')
         ->format->toBe('xlsx')
         ->is_active->toBeTrue()
-        ->context->toEqual(['panel' => 'test', 'page' => ListPosts::class, 'tenant' => null]); // MySQL JSON doesn't keep key order
+        ->context->toEqual(['panel' => 'test', 'page' => ListPosts::class, 'tenant' => null, 'skip_empty' => false]); // MySQL JSON doesn't keep key order
 });
 
 it('sends due reports once per occurrence and skips turned off ones', function () {
@@ -131,4 +134,43 @@ it('keeps the settings of a turned off report and fills them back', function () 
         ->set('activeTab', "saved-{$this->drafts->id}")
         ->mountTableAction('savedFilterReport')
         ->assertTableActionDataSet(['is_active' => false, 'frequency' => 'monthly', 'day' => 15]);
+});
+
+it('skips an empty report only when asked to', function () {
+    $this->travelTo(now()->setTime(7, 0));
+    $this->drafts->update(['filters' => ['status' => ['value' => 'archived']]]);
+    subscribe($this->bob, $this->drafts, ['skip_empty' => true]);
+    subscribe($this->ana, $this->drafts);
+
+    $this->travelTo(now()->setTime(8, 10));
+    $this->artisan('saved-filter:send-reports');
+
+    Mail::assertSent(SavedFilterReportMail::class, 1);
+    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->hasTo('ana@example.com') && $mail->count === 0);
+});
+
+it('neutralizes spreadsheet formulas in the records', function () {
+    Post::query()->create(['title' => '=HYPERLINK("http://evil.test")', 'status' => '-5']);
+
+    Livewire::test(ListPosts::class)->callTableAction('emailSavedFilter', data: ['format' => 'csv']);
+
+    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => str_contains($mail->content, "'=HYPERLINK")
+        && str_contains($mail->content, ',-5'));
+});
+
+it('builds a report only inside the subscriber\'s own tenant', function () {
+    $mine = Team::query()->create(['name' => 'Mine']);
+    $theirs = Team::query()->create(['name' => 'Theirs']);
+    Post::query()->create(['title' => 'Our post', 'status' => 'draft', 'team_id' => $mine->id]);
+    Post::query()->create(['title' => 'Their post', 'status' => 'draft', 'team_id' => $theirs->id]);
+    $member = Member::query()->create(['name' => 'Cid', 'email' => 'cid@example.com', 'team_id' => $mine->id]);
+
+    $build = fn (array $context) => app(BuildsSavedFilterReports::class)
+        ->build($member, [], 'Posts', 'csv', ['panel' => 'tenant', 'page' => ListPosts::class, ...$context]);
+
+    expect($build(['tenant_id' => $mine->id]))
+        ->count->toBe(1)
+        ->content->toContain('Our post')->not->toContain('Their post')
+        ->and($build(['tenant_id' => $theirs->id]))->toBeNull()
+        ->and($build(['tenant' => null]))->toBeNull();
 });
