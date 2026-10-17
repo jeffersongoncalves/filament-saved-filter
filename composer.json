@@ -1,0 +1,67 @@
+{
+    "name": "jeffersongoncalves/filament-saved-filter",
+    "description": "Saved filters for Filament tables: save, share and restore filters, sort, search and column visibility as tabs or a dropdown, with presets, JSON export/import and multi-tenancy.",
+    "keywords": [
+        "laravel",
+        "filament",
+        "filament-plugin",
+        "filament-saved-filter",
+        "saved-filters",
+        "table-views",
+        "saved-views",
+        "filters"
+    ],
+    "homepage": "https://github.com/jeffersongoncalves/filament-saved-filter",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Jefferson Gonçalves",
+            "email": "gerson.simao.92@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "filament/filament": "^3.0",
+        "spatie/laravel-package-tools": "^1.16",
+        "jeffersongoncalves/laravel-saved-filter": "^1.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0",
+        "pestphp/pest": "^3.0|^4.0",
+        "larastan/larastan": "^2.0|^3.0",
+        "laravel/pint": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "JeffersonGoncalves\\Filament\\SavedFilter\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JeffersonGoncalves\\Filament\\SavedFilter\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint",
+        "analyse": "vendor/bin/phpstan analyse"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "JeffersonGoncalves\\Filament\\SavedFilter\\SavedFilterServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
