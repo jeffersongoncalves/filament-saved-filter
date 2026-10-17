@@ -7,6 +7,7 @@ Saved table views for Filament ListRecords pages (filters, sort, search, toggled
 @verbatim
 <code-snippet name="Install the plugin" lang="bash">
 composer require jeffersongoncalves/filament-saved-filter:"^3.0"
+php artisan vendor:publish --tag="saved-filter-migrations"
 php artisan migrate
 </code-snippet>
 @endverbatim

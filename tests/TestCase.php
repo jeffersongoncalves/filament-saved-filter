@@ -17,6 +17,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use JeffersonGoncalves\Filament\SavedFilter\SavedFilterServiceProvider;
 use JeffersonGoncalves\Filament\SavedFilter\Tests\Fixtures\TestPanelProvider;
+use JeffersonGoncalves\PestPluginDatabaseMigrations\LoadsPackageMigrations;
 use JeffersonGoncalves\SavedFilter\SavedFilterServiceProvider as LaravelSavedFilterServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -24,6 +25,8 @@ use RyanChandler\BladeCaptureDirective\BladeCaptureDirectiveServiceProvider;
 
 class TestCase extends Orchestra
 {
+    use LoadsPackageMigrations;
+
     protected function getPackageProviders($app): array
     {
         // Version-specific providers: Filament 4+ ships the form/schema test helpers in the Schemas provider;
@@ -65,7 +68,7 @@ class TestCase extends Orchestra
 
     protected function defineDatabaseMigrations(): void
     {
-        $this->loadMigrationsFrom(dirname((string) (new \ReflectionClass(LaravelSavedFilterServiceProvider::class))->getFileName()).'/../database/migrations');
+        $this->loadPackageMigrations(LaravelSavedFilterServiceProvider::class);
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();
