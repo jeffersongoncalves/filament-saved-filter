@@ -26,6 +26,7 @@ return [
         'day' => 'Dag',
         'time' => 'Tijd',
         'format' => 'Formaat',
+        'skip_empty' => 'Niet versturen als er geen records zijn',
     ],
     'colors' => ['primary' => 'Primair', 'gray' => 'Grijs', 'info' => 'Info', 'success' => 'Succes', 'warning' => 'Waarschuwing', 'danger' => 'Gevaar'],
     'badges' => ['preset' => 'Voorinstelling', 'shared' => 'Gedeeld', 'modified' => 'Gewijzigd'],

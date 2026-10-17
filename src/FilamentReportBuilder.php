@@ -46,6 +46,7 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
                 return null;
             }
 
+            // Filament 3 scopes the resource query to this tenant in Resource::getEloquentQuery().
             Filament::setTenant($tenant, isQuiet: true);
         }
 
@@ -63,6 +64,10 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
 
         [$content, $count] = $this->export($exporter, $instance->getSavedFilterReportQuery($state), $format);
 
+        if ($count === 0 && ($context['skip_empty'] ?? false)) {
+            return null;
+        }
+
         return new ReportFile($content, str($name)->slug()->append('-', now()->format('Y-m-d'), '.', $format)->toString(), $count);
     }
 
@@ -78,7 +83,8 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
             ->mapWithKeys(fn (ExportColumn $column): array => [$column->getName() => $column->getLabel() ?? $column->getName()])
             ->all();
 
-        $row = new $exporter(new Export, $columnMap, []);
+        $exporterRow = new $exporter(new Export, $columnMap, []);
+        $row = fn (Model $record): array => array_map($this->neutralizeFormula(...), $exporterRow($record));
         $records = $exporter::modifyQuery($query)->lazy();
         $count = 0;
 
@@ -111,5 +117,18 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
         }
 
         return [$csv->toString(), $count];
+    }
+
+    /**
+     * Spreadsheets run a cell starting with = + - @ (or a tab/CR before one) as a formula. Records are user content
+     * and the file lands in a colleague's inbox, so such text is prefixed with ' (numbers like -5 are left alone).
+     */
+    protected function neutralizeFormula(mixed $value): mixed
+    {
+        if (is_string($value) && $value !== '' && ! is_numeric($value) && in_array($value[0], ['=', '+', '-', '@', "\t", "\r"], true)) {
+            return "'".$value;
+        }
+
+        return $value;
     }
 }

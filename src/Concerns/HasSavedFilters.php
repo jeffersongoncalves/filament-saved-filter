@@ -412,8 +412,8 @@ trait HasSavedFilters
                 $this->getManageSavedFiltersAction(),
                 $this->getEmailSavedFilterAction(),
                 $this->getSavedFilterReportAction(),
-                $this->getExportSavedFiltersAction()->visible($plugin->isExportable()),
-                $this->getImportSavedFiltersAction()->visible($plugin->isImportable()),
+                $this->getExportSavedFiltersAction(),
+                $this->getImportSavedFiltersAction(),
             ])->dropdown(false),
         ])
             ->label(__('filament-saved-filter::saved-filter.actions.group'))
@@ -671,8 +671,9 @@ trait HasSavedFilters
                 $owner = $this->getSavedFilterOwner();
                 $existing = $filter && $owner ? $report($filter, $owner) : null;
 
-                return $existing?->only(['is_active', 'frequency', 'day', 'time', 'format'])
-                    ?? ['is_active' => true, 'frequency' => SavedFilterReport::WEEKLY, 'day' => 1, 'time' => '08:00', 'format' => 'csv'];
+                return $existing
+                    ? [...$existing->only(['is_active', 'frequency', 'day', 'time', 'format']), 'skip_empty' => (bool) ($existing->context['skip_empty'] ?? false)]
+                    : ['is_active' => true, 'frequency' => SavedFilterReport::WEEKLY, 'day' => 1, 'time' => '08:00', 'format' => 'csv', 'skip_empty' => false];
             })
             ->form([
                 Toggle::make('is_active')
@@ -696,6 +697,8 @@ trait HasSavedFilters
                     ->seconds(false)
                     ->required(),
                 $this->getSavedFilterReportFormatField(),
+                Toggle::make('skip_empty')
+                    ->label(__('filament-saved-filter::saved-filter.fields.skip_empty')),
             ])
             ->action(function (array $data) use ($active): void {
                 $filter = $active();
@@ -709,7 +712,7 @@ trait HasSavedFilters
                     'user_type' => $owner->getMorphClass(),
                     'user_id' => (string) $owner->getKey(),
                 ], [
-                    'context' => $this->getSavedFilterReportContext(),
+                    'context' => [...$this->getSavedFilterReportContext(), 'skip_empty' => (bool) ($data['skip_empty'] ?? false)],
                     'frequency' => $data['frequency'],
                     'day' => $data['frequency'] === SavedFilterReport::DAILY ? null : (int) $data['day'],
                     'time' => substr((string) $data['time'], 0, 5),
@@ -736,7 +739,7 @@ trait HasSavedFilters
         return Action::make('exportSavedFilters')
             ->label(__('filament-saved-filter::saved-filter.actions.export.label'))
             ->icon('heroicon-o-arrow-down-tray')
-            ->visible(fn () => $this->getSavedFilters()->isNotEmpty())
+            ->visible(fn () => SavedFilterPlugin::current()->isExportable() && $this->getSavedFilters()->isNotEmpty())
             ->action(function () {
                 $json = json_encode(
                     ['saved_filters' => $this->getSavedFilters()->map->toPortableArray()->values()->all()],
@@ -754,6 +757,7 @@ trait HasSavedFilters
         return Action::make('importSavedFilters')
             ->label(__('filament-saved-filter::saved-filter.actions.import.label'))
             ->icon('heroicon-o-arrow-up-tray')
+            ->visible(fn () => SavedFilterPlugin::current()->isImportable())
             ->form([
                 FileUpload::make('file')
                     ->label(__('filament-saved-filter::saved-filter.fields.file'))

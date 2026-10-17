@@ -26,6 +26,7 @@ return [
         'day' => 'Tag',
         'time' => 'Uhrzeit',
         'format' => 'Format',
+        'skip_empty' => 'Nicht senden, wenn es keine Datensätze gibt',
     ],
     'colors' => ['primary' => 'Primär', 'gray' => 'Grau', 'info' => 'Info', 'success' => 'Erfolg', 'warning' => 'Warnung', 'danger' => 'Gefahr'],
     'badges' => ['preset' => 'Vorlage', 'shared' => 'Geteilt', 'modified' => 'Geändert'],

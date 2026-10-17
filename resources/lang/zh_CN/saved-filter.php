@@ -26,6 +26,7 @@ return [
         'day' => '日期',
         'time' => '时间',
         'format' => '格式',
+        'skip_empty' => '没有记录时不发送',
     ],
     'colors' => ['primary' => '主要', 'gray' => '灰色', 'info' => '信息', 'success' => '成功', 'warning' => '警告', 'danger' => '危险'],
     'badges' => ['preset' => '预设', 'shared' => '共享', 'modified' => '已修改'],

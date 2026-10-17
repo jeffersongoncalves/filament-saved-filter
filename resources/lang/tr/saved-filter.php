@@ -26,6 +26,7 @@ return [
         'day' => 'Gün',
         'time' => 'Saat',
         'format' => 'Biçim',
+        'skip_empty' => 'Kayıt yoksa gönderme',
     ],
     'colors' => ['primary' => 'Birincil', 'gray' => 'Gri', 'info' => 'Bilgi', 'success' => 'Başarılı', 'warning' => 'Uyarı', 'danger' => 'Tehlike'],
     'badges' => ['preset' => 'Ön ayar', 'shared' => 'Paylaşılan', 'modified' => 'Değiştirildi'],

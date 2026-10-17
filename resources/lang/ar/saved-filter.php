@@ -26,6 +26,7 @@ return [
         'day' => 'اليوم',
         'time' => 'الوقت',
         'format' => 'التنسيق',
+        'skip_empty' => 'لا ترسل إذا لم تكن هناك سجلات',
     ],
     'colors' => ['primary' => 'أساسي', 'gray' => 'رمادي', 'info' => 'معلومات', 'success' => 'نجاح', 'warning' => 'تحذير', 'danger' => 'خطر'],
     'badges' => ['preset' => 'إعداد مسبق', 'shared' => 'مشتركة', 'modified' => 'معدّل'],

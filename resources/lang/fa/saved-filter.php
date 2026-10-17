@@ -26,6 +26,7 @@ return [
         'day' => 'روز',
         'time' => 'ساعت',
         'format' => 'قالب',
+        'skip_empty' => 'اگر رکوردی نبود ارسال نکن',
     ],
     'colors' => ['primary' => 'اصلی', 'gray' => 'خاکستری', 'info' => 'اطلاعات', 'success' => 'موفقیت', 'warning' => 'هشدار', 'danger' => 'خطر'],
     'badges' => ['preset' => 'پیش‌تنظیم', 'shared' => 'اشتراکی', 'modified' => 'تغییر یافته'],
