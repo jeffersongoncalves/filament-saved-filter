@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## 3.3.0 - 2026-10-17
+
+### What's new
+
+- **Email reports** (opt-in, `->emailReports()`): **Email this view** sends the current table state as CSV/XLSX, and each user can schedule the report of any view they see (their own, shared ones, presets) daily, weekly or monthly, for themselves only. Files are built with the page's Filament exporter: return it from `getSavedFilterExporter()` on the list page. Reports run with the subscriber's login and tenant, and nothing is sent once they lose access to the resource, the tenant or the view.
+- **Export / import views are now opt-in**: enable them with `->exportable()` / `->importable()`.
+
+### Upgrading
+
+Requires `jeffersongoncalves/laravel-saved-filter` ^1.5, which stores the schedules, mails the reports and registers `saved-filter:send-reports` on the scheduler (every 15 minutes). Publish and migrate again for the `saved_filter_reports` table:
+
+```bash
+php artisan vendor:publish --tag="saved-filter-migrations"
+php artisan migrate
+
+```
+If you used export/import, add `->exportable()->importable()` to the plugin to keep them.
+
 ## 3.2.0 - 2026-10-17
 
 ### What's new
@@ -18,6 +36,7 @@ Requires `jeffersongoncalves/laravel-saved-filter` ^1.3. Publish and migrate aga
 ```bash
 php artisan vendor:publish --tag="saved-filter-migrations"
 php artisan migrate
+
 
 ```
 ## 3.1.0 - 2026-10-17
