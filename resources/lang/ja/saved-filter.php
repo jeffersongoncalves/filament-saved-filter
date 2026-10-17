@@ -6,7 +6,7 @@ return [
         'save' => ['label' => '現在のビューを保存', 'notification' => 'ビューを保存しました'],
         'update' => ['label' => '「:name」を現在のビューで更新', 'notification' => 'ビューを更新しました'],
         'reset' => ['label' => 'ビューをクリア'],
-        'manage' => ['label' => 'ビューを管理', 'notification' => 'ビューを更新しました'],
+        'manage' => ['label' => 'ビューを管理', 'description' => 'ビューの名前変更、並べ替え、デフォルトの設定、使わなくなったビューの削除ができます。', 'submit' => '変更を保存', 'notification' => 'ビューを更新しました'],
         'export' => ['label' => 'ビューをエクスポート'],
         'import' => ['label' => 'ビューをインポート', 'notification' => 'インポートしたビュー: :count', 'invalid' => 'ファイルは有効なビューのエクスポートではありません。'],
     ],

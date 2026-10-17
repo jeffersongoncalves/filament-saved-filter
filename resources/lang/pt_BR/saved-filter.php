@@ -16,6 +16,8 @@ return [
         ],
         'manage' => [
             'label' => 'Gerenciar visualizações',
+            'description' => 'Renomeie, reordene, defina a padrão ou exclua as visualizações que não usa mais.',
+            'submit' => 'Salvar alterações',
             'notification' => 'Visualizações atualizadas',
         ],
         'export' => [
