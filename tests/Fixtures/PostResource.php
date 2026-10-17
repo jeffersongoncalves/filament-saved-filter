@@ -16,7 +16,7 @@ class PostResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('title')->searchable()->sortable(),
-                TextColumn::make('status')->toggleable(),
+                TextColumn::make('status')->toggleable()->searchable(isIndividual: true),
                 TextColumn::make('created_at')->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([

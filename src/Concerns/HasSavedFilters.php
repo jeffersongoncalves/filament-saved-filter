@@ -255,7 +255,7 @@ trait HasSavedFilters
     public function applySavedFilter(SavedFilter $filter): void
     {
         $this->applySavedFilterState($filter->only([
-            'filters', 'sort_column', 'sort_direction', 'search', 'toggled_columns', 'records_per_page', 'grouping', 'grouping_direction',
+            'filters', 'sort_column', 'sort_direction', 'search', 'column_searches', 'toggled_columns', 'records_per_page', 'grouping', 'grouping_direction',
         ]));
 
         $this->activeSavedFilter = $filter->getKey();
@@ -309,6 +309,15 @@ trait HasSavedFilters
         $this->tableSearch = (string) ($state['search'] ?? '');
         $this->updatedTableSearch();
 
+        $searchable = collect($table->getColumns())->filter->isIndividuallySearchable()->keys()->all();
+        $this->tableColumnSearches = [];
+
+        foreach (Arr::only(Arr::dot($state['column_searches'] ?? []), $searchable) as $column => $search) {
+            Arr::set($this->tableColumnSearches, $column, (string) $search);
+        }
+
+        $this->updatedTableColumnSearches();
+
         if ($table->isPaginated()) {
             $perPage = (string) ($state['records_per_page'] ?? '');
             $option = collect($table->getPaginationPageOptions())->first(fn ($option) => (string) $option === $perPage);
@@ -334,7 +343,7 @@ trait HasSavedFilters
     }
 
     /**
-     * @return array{filters: array<string, mixed>, sort_column: ?string, sort_direction: ?string, search: ?string, toggled_columns: array<string, bool>, records_per_page: ?string, grouping: ?string, grouping_direction: ?string}
+     * @return array{filters: array<string, mixed>, sort_column: ?string, sort_direction: ?string, search: ?string, column_searches: ?array<string, mixed>, toggled_columns: array<string, bool>, records_per_page: ?string, grouping: ?string, grouping_direction: ?string}
      */
     protected function getCurrentSavedFilterState(): array
     {
@@ -349,11 +358,30 @@ trait HasSavedFilters
             'sort_column' => $this->getTableSortColumn(),
             'sort_direction' => $this->getTableSortColumn() ? $this->getTableSortDirection() : null,
             'search' => filled($this->tableSearch) ? (string) $this->tableSearch : null,
+            'column_searches' => $this->getSavedFilterColumnSearches(),
             'toggled_columns' => $toggled,
             'records_per_page' => $this->getTable()->isPaginated() && filled($this->tableRecordsPerPage) ? (string) $this->tableRecordsPerPage : null,
             'grouping' => filled($this->tableGrouping) ? $this->tableGrouping : null,
             'grouping_direction' => filled($this->tableGrouping) ? ($this->getTableGroupingDirection() ?? 'asc') : null,
         ];
+    }
+
+    /**
+     * The filled per-column searches, nested again for dotted names (author.name); null when there are none.
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function getSavedFilterColumnSearches(): ?array
+    {
+        $searches = [];
+
+        foreach (Arr::dot($this->tableColumnSearches) as $column => $search) {
+            if (filled($search)) {
+                Arr::set($searches, (string) $column, (string) $search);
+            }
+        }
+
+        return $searches ?: null;
     }
 
     public function getSavedFilterActionGroup(): ActionGroup
@@ -620,7 +648,7 @@ trait HasSavedFilters
         }
 
         foreach ($row as $key => $value) {
-            $valid = in_array($key, ['filters', 'toggled_columns'], true)
+            $valid = in_array($key, ['filters', 'column_searches', 'toggled_columns'], true)
                 ? $value === null || is_array($value)
                 : $value === null || is_scalar($value);
 

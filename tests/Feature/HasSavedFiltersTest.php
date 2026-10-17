@@ -244,6 +244,35 @@ it('saves and restores records per page and grouping', function () {
         ->assertSet('tableGrouping', null);
 });
 
+it('saves and restores per-column searches', function () {
+    $component = Livewire::test(ListPosts::class)
+        ->searchTableColumns(['status' => 'draft'])
+        ->callTableAction('saveSavedFilter', data: ['name' => 'Drafts']);
+
+    $filter = SavedFilter::query()->sole();
+
+    expect($filter->column_searches)->toBe(['status' => 'draft']);
+
+    $component->set('activeTab', 'all')
+        ->assertSet('tableColumnSearches', [])
+        ->set('activeTab', "saved-{$filter->id}")
+        ->assertSet('tableColumnSearches.status', 'draft')
+        ->assertCanSeeTableRecords([$this->draft])
+        ->assertCanNotSeeTableRecords([$this->published])
+        ->searchTableColumns(['status' => 'pub']);
+
+    expect($component->instance()->isSavedFilterModified())->toBeTrue();
+});
+
+it('ignores column searches on columns that are no longer searchable', function () {
+    $filter = savedFilter(['filters' => [], 'column_searches' => ['title' => 'Hello', 'gone' => 'x']]);
+
+    Livewire::test(ListPosts::class)
+        ->set('activeTab', "saved-{$filter->id}")
+        ->assertSet('tableColumnSearches', [])
+        ->assertCanSeeTableRecords([$this->published, $this->draft]);
+});
+
 it('ignores pagination options and groups the table no longer has', function () {
     $filter = savedFilter(['records_per_page' => '999', 'grouping' => 'gone']);
 
