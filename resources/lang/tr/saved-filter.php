@@ -21,6 +21,7 @@ return [
         'is_public' => 'Ekibimle paylaş',
         'as_preset' => 'Herkes için kilitli ön ayar olarak kaydet',
         'file' => 'JSON dosyası',
+        'view' => 'Görünüm',
         'report_active' => 'Bu görünümü bana e-postayla gönder',
         'frequency' => 'Sıklık',
         'day' => 'Gün',

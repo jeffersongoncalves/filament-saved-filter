@@ -49,6 +49,7 @@ return [
         'is_public' => 'Compartilhar com minha equipe',
         'as_preset' => 'Salvar como predefinição bloqueada para todos',
         'file' => 'Arquivo JSON',
+        'view' => 'Visualização',
         'report_active' => 'Enviar esta visualização para mim por email',
         'frequency' => 'Frequência',
         'day' => 'Dia',

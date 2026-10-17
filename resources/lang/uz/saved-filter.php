@@ -21,6 +21,7 @@ return [
         'is_public' => 'Jamoam bilan ulashish',
         'as_preset' => 'Hamma uchun qulflangan andoza sifatida saqlash',
         'file' => 'JSON fayl',
+        'view' => 'Ko\'rinish',
         'report_active' => 'Bu ko\'rinishni menga e-pochtada yuborish',
         'frequency' => 'Chastota',
         'day' => 'Kun',

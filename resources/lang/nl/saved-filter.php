@@ -21,6 +21,7 @@ return [
         'is_public' => 'Delen met mijn team',
         'as_preset' => 'Opslaan als vergrendelde voorinstelling voor iedereen',
         'file' => 'JSON-bestand',
+        'view' => 'Weergave',
         'report_active' => 'Stuur mij deze weergave per e-mail',
         'frequency' => 'Frequentie',
         'day' => 'Dag',

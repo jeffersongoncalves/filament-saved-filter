@@ -21,6 +21,7 @@ return [
         'is_public' => 'Partilhar com a minha equipa',
         'as_preset' => 'Guardar como predefinição bloqueada para todos',
         'file' => 'Ficheiro JSON',
+        'view' => 'Vista',
         'report_active' => 'Enviar-me esta vista por email',
         'frequency' => 'Frequência',
         'day' => 'Dia',

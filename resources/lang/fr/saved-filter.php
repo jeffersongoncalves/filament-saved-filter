@@ -21,6 +21,7 @@ return [
         'is_public' => 'Partager avec mon équipe',
         'as_preset' => 'Enregistrer comme préréglage verrouillé pour tous',
         'file' => 'Fichier JSON',
+        'view' => 'Vue',
         'report_active' => 'M\'envoyer cette vue par e-mail',
         'frequency' => 'Fréquence',
         'day' => 'Jour',

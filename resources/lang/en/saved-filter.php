@@ -49,6 +49,7 @@ return [
         'is_public' => 'Share with my team',
         'as_preset' => 'Save as a locked preset for everyone',
         'file' => 'JSON file',
+        'view' => 'View',
         'report_active' => 'Send me this view by email',
         'frequency' => 'Frequency',
         'day' => 'Day',

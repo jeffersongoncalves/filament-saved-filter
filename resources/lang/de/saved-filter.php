@@ -21,6 +21,7 @@ return [
         'is_public' => 'Mit meinem Team teilen',
         'as_preset' => 'Als gesperrte Vorlage für alle speichern',
         'file' => 'JSON-Datei',
+        'view' => 'Ansicht',
         'report_active' => 'Diese Ansicht per E-Mail an mich senden',
         'frequency' => 'Häufigkeit',
         'day' => 'Tag',

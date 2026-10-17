@@ -21,6 +21,7 @@ return [
         'is_public' => 'Udostępnij mojemu zespołowi',
         'as_preset' => 'Zapisz jako zablokowany szablon dla wszystkich',
         'file' => 'Plik JSON',
+        'view' => 'Widok',
         'report_active' => 'Wysyłaj mi ten widok e-mailem',
         'frequency' => 'Częstotliwość',
         'day' => 'Dzień',
