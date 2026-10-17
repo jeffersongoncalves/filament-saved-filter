@@ -702,7 +702,8 @@ trait HasSavedFilters
                     $this->getCurrentSavedFilterState(),
                     $active->name ?? static::getResource()::getPluralModelLabel(),
                     $data['format'] === 'xlsx' ? 'xlsx' : 'csv',
-                    $this->getSavedFilterReportContext(),
+                    // The email links to the view only while the table still shows it as saved.
+                    [...$this->getSavedFilterReportContext(), 'saved_filter_id' => $active && ! $this->isSavedFilterModified() ? $active->getKey() : null],
                 );
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.email.notification'))->send();
@@ -786,7 +787,7 @@ trait HasSavedFilters
                     'user_type' => $owner->getMorphClass(),
                     'user_id' => (string) $owner->getKey(),
                 ], [
-                    'context' => [...$this->getSavedFilterReportContext(), 'skip_empty' => (bool) ($data['skip_empty'] ?? false)],
+                    'context' => [...$this->getSavedFilterReportContext(), 'saved_filter_id' => $filter->getKey(), 'skip_empty' => (bool) ($data['skip_empty'] ?? false)],
                     'frequency' => $data['frequency'],
                     'day' => $data['frequency'] === SavedFilterReport::DAILY ? null : (int) $data['day'],
                     'time' => substr((string) $data['time'], 0, 5),
