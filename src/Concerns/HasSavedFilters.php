@@ -669,28 +669,46 @@ trait HasSavedFilters
             });
     }
 
-    /** Each user turns the email report of a view they see on or off for themselves, shared views included. */
+    /**
+     * Each user turns the email report of a view they see on or off for themselves, shared views included.
+     * Opens on the active view, or the first one from "All"; picking another view loads its settings.
+     */
     protected function getSavedFilterReportAction(): Action
     {
-        $active = fn (): ?SavedFilter => $this->activeSavedFilter ? $this->findSavedFilter($this->activeSavedFilter) : null;
-        $report = fn (SavedFilter $filter, Model $owner): ?SavedFilterReport => $filter->reports()->forUser($owner)->first();
+        $settings = function (?int $id): array {
+            $owner = $this->getSavedFilterOwner();
+            $existing = $id && $owner ? $this->findSavedFilter($id)?->reports()->forUser($owner)->first() : null;
+
+            return $existing
+                ? [...$existing->only(['is_active', 'frequency', 'day', 'time', 'format']), 'skip_empty' => (bool) ($existing->context['skip_empty'] ?? false)]
+                : ['is_active' => true, 'frequency' => SavedFilterReport::WEEKLY, 'day' => 1, 'time' => '08:00', 'format' => 'csv', 'skip_empty' => false];
+        };
 
         return Action::make('savedFilterReport')
             ->label(__('filament-saved-filter::saved-filter.actions.report.label'))
             ->modalDescription(__('filament-saved-filter::saved-filter.actions.report.description'))
             ->icon('heroicon-o-calendar-days')
             ->modalWidth('md')
-            ->visible(fn () => $this->hasSavedFilterReports() && $active() && filled($this->getSavedFilterOwner()?->getAttribute('email')))
-            ->fillForm(function () use ($active, $report): array {
-                $filter = $active();
-                $owner = $this->getSavedFilterOwner();
-                $existing = $filter && $owner ? $report($filter, $owner) : null;
+            ->visible(fn () => $this->hasSavedFilterReports() && $this->getSavedFilters()->isNotEmpty() && filled($this->getSavedFilterOwner()?->getAttribute('email')))
+            ->fillForm(function () use ($settings): array {
+                $id = $this->activeSavedFilter && $this->findSavedFilter($this->activeSavedFilter)
+                    ? $this->activeSavedFilter
+                    : $this->getSavedFilters()->first()?->getKey();
 
-                return $existing
-                    ? [...$existing->only(['is_active', 'frequency', 'day', 'time', 'format']), 'skip_empty' => (bool) ($existing->context['skip_empty'] ?? false)]
-                    : ['is_active' => true, 'frequency' => SavedFilterReport::WEEKLY, 'day' => 1, 'time' => '08:00', 'format' => 'csv', 'skip_empty' => false];
+                return ['saved_filter_id' => $id, ...$settings($id)];
             })
             ->schema([
+                Select::make('saved_filter_id')
+                    ->label(__('filament-saved-filter::saved-filter.fields.view'))
+                    ->options(fn (): array => $this->getSavedFilters()->pluck('name', 'id')->all())
+                    ->selectablePlaceholder(false)
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(function ($state, $set) use ($settings): void {
+                        foreach ($settings(filled($state) ? (int) $state : null) as $field => $value) {
+                            $set($field, $value);
+                        }
+                    }),
                 Toggle::make('is_active')
                     ->label(__('filament-saved-filter::saved-filter.fields.report_active')),
                 Select::make('frequency')
@@ -715,8 +733,9 @@ trait HasSavedFilters
                 Toggle::make('skip_empty')
                     ->label(__('filament-saved-filter::saved-filter.fields.skip_empty')),
             ])
-            ->action(function (array $data) use ($active): void {
-                $filter = $active();
+            ->action(function (array $data): void {
+                // Only a view this user sees: the id comes from the browser.
+                $filter = $this->findSavedFilter((int) ($data['saved_filter_id'] ?? 0));
                 $owner = $this->getSavedFilterOwner();
 
                 if (! $filter || ! $owner || ! $this->hasSavedFilterReports()) {

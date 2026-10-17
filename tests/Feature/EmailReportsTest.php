@@ -136,6 +136,46 @@ it('keeps the settings of a turned off report and fills them back', function () 
         ->assertTableActionDataSet(['is_active' => false, 'frequency' => 'monthly', 'day' => 15]);
 });
 
+it('schedules from the All tab by picking the view, loading its settings', function () {
+    $published = SavedFilter::query()->create([
+        'owner_type' => $this->ana->getMorphClass(),
+        'owner_id' => $this->ana->getKey(),
+        'resource' => PostResource::class,
+        'name' => 'Published',
+        'filters' => ['status' => ['value' => 'published']],
+        'order_column' => 5,
+    ]);
+    subscribe($this->ana, $published, ['frequency' => 'monthly', 'day' => 9]);
+
+    Livewire::test(ListPosts::class)
+        ->assertSet('activeSavedFilter', null)
+        ->assertTableActionVisible('savedFilterReport')
+        ->mountTableAction('savedFilterReport')
+        ->assertTableActionDataSet(['saved_filter_id' => $this->drafts->id, 'frequency' => 'weekly'])
+        ->setTableActionData(['saved_filter_id' => $published->id])
+        ->assertTableActionDataSet(['frequency' => 'monthly', 'day' => 9])
+        ->setTableActionData(['saved_filter_id' => $this->drafts->id, 'frequency' => 'daily'])
+        ->callMountedTableAction()
+        ->assertHasNoTableActionErrors();
+
+    expect($this->drafts->reports()->sole()->frequency)->toBe('daily')
+        ->and($published->reports()->sole()->frequency)->toBe('monthly');
+});
+
+it('refuses to schedule a view the user does not see', function () {
+    $private = SavedFilter::query()->create([
+        'owner_type' => $this->bob->getMorphClass(),
+        'owner_id' => $this->bob->getKey(),
+        'resource' => PostResource::class,
+        'name' => 'Bob private',
+    ]);
+
+    Livewire::test(ListPosts::class)
+        ->callTableAction('savedFilterReport', data: ['saved_filter_id' => $private->id, 'frequency' => 'daily', 'time' => '08:00', 'format' => 'csv']);
+
+    expect(SavedFilterReport::query()->count())->toBe(0);
+});
+
 it('skips an empty report only when asked to', function () {
     $this->travelTo(now()->setTime(7, 0));
     $this->drafts->update(['filters' => ['status' => ['value' => 'archived']]]);

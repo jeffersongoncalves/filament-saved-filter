@@ -21,6 +21,7 @@ return [
         'is_public' => 'Compartir con mi equipo',
         'as_preset' => 'Guardar como ajuste bloqueado para todos',
         'file' => 'Archivo JSON',
+        'view' => 'Vista',
         'report_active' => 'Enviarme esta vista por correo',
         'frequency' => 'Frecuencia',
         'day' => 'Día',
