@@ -2,12 +2,15 @@
 
 namespace JeffersonGoncalves\Filament\SavedFilter\Concerns;
 
+use Carbon\CarbonInterface;
+use Filament\Actions\Exports\Exporter;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Components\Tab;
@@ -20,7 +23,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use JeffersonGoncalves\Filament\SavedFilter\SavedFilterPlugin;
 use JeffersonGoncalves\SavedFilter\Events\SavedFilterApplied;
+use JeffersonGoncalves\SavedFilter\Jobs\SendSavedFilterReport;
 use JeffersonGoncalves\SavedFilter\Models\SavedFilter;
+use JeffersonGoncalves\SavedFilter\Models\SavedFilterReport;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Throwable;
 
@@ -254,9 +259,7 @@ trait HasSavedFilters
 
     public function applySavedFilter(SavedFilter $filter): void
     {
-        $this->applySavedFilterState($filter->only([
-            'filters', 'sort_column', 'sort_direction', 'search', 'column_searches', 'toggled_columns', 'records_per_page', 'grouping', 'grouping_direction',
-        ]));
+        $this->applySavedFilterState($filter->only(SavedFilter::STATE));
 
         $this->activeSavedFilter = $filter->getKey();
         $this->takeSavedFilterSnapshot();
@@ -407,6 +410,8 @@ trait HasSavedFilters
                 $this->getRevertSavedFilterAction(),
                 $this->getResetSavedFilterAction(),
                 $this->getManageSavedFiltersAction(),
+                $this->getEmailSavedFilterAction(),
+                $this->getSavedFilterReportAction(),
                 $this->getExportSavedFiltersAction()->visible($plugin->isExportable()),
                 $this->getImportSavedFiltersAction()->visible($plugin->isImportable()),
             ])->dropdown(false),
@@ -578,6 +583,152 @@ trait HasSavedFilters
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.manage.notification'))->send();
             });
+    }
+
+    /**
+     * The Exporter that builds the email reports of this page; null hides them.
+     *
+     * @return class-string<Exporter>|null
+     */
+    public function getSavedFilterExporter(): ?string
+    {
+        return null;
+    }
+
+    /**
+     * The records of a state, on a page built outside a request (email reports).
+     *
+     * @param  array<string, mixed>  $state  SavedFilter attributes
+     * @return Builder<Model>
+     */
+    public function getSavedFilterReportQuery(array $state): Builder
+    {
+        $this->bootedInteractsWithTable();
+        $this->applySavedFilterState($state);
+
+        return $this->getTableQueryForExport();
+    }
+
+    /**
+     * What FilamentReportBuilder needs to rebuild this page. The tenant is kept even when the filters aren't
+     * scoped to it (scopedToTenant(false)), so the report never runs on a tenant-aware panel without one.
+     *
+     * @return array{panel: string, page: class-string, tenant: mixed}
+     */
+    protected function getSavedFilterReportContext(): array
+    {
+        return ['panel' => Filament::getCurrentPanel()->getId(), 'page' => static::class, 'tenant' => Filament::getTenant()?->getKey()];
+    }
+
+    protected function hasSavedFilterReports(): bool
+    {
+        return SavedFilterPlugin::current()->hasEmailReports() && filled($this->getSavedFilterExporter());
+    }
+
+    protected function getEmailSavedFilterAction(): Action
+    {
+        return Action::make('emailSavedFilter')
+            ->label(__('filament-saved-filter::saved-filter.actions.email.label'))
+            ->icon('heroicon-o-envelope')
+            ->modalWidth('sm')
+            ->visible(fn () => $this->hasSavedFilterReports() && filled($this->getSavedFilterOwner()?->getAttribute('email')))
+            ->form([$this->getSavedFilterReportFormatField()])
+            ->action(function (array $data): void {
+                $owner = $this->getSavedFilterOwner();
+
+                if (! $owner || ! $this->hasSavedFilterReports()) {
+                    return;
+                }
+
+                $active = $this->activeSavedFilter ? $this->findSavedFilter($this->activeSavedFilter) : null;
+
+                SendSavedFilterReport::dispatch(
+                    $owner,
+                    $this->getCurrentSavedFilterState(),
+                    $active->name ?? static::getResource()::getPluralModelLabel(),
+                    $data['format'] === 'xlsx' ? 'xlsx' : 'csv',
+                    $this->getSavedFilterReportContext(),
+                );
+
+                Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.email.notification'))->send();
+            });
+    }
+
+    /** Each user turns the email report of a view they see on or off for themselves, shared views included. */
+    protected function getSavedFilterReportAction(): Action
+    {
+        $active = fn (): ?SavedFilter => $this->activeSavedFilter ? $this->findSavedFilter($this->activeSavedFilter) : null;
+        $report = fn (SavedFilter $filter, Model $owner): ?SavedFilterReport => $filter->reports()->forUser($owner)->first();
+
+        return Action::make('savedFilterReport')
+            ->label(__('filament-saved-filter::saved-filter.actions.report.label'))
+            ->modalDescription(__('filament-saved-filter::saved-filter.actions.report.description'))
+            ->icon('heroicon-o-calendar-days')
+            ->modalWidth('md')
+            ->visible(fn () => $this->hasSavedFilterReports() && $active() && filled($this->getSavedFilterOwner()?->getAttribute('email')))
+            ->fillForm(function () use ($active, $report): array {
+                $filter = $active();
+                $owner = $this->getSavedFilterOwner();
+                $existing = $filter && $owner ? $report($filter, $owner) : null;
+
+                return $existing?->only(['is_active', 'frequency', 'day', 'time', 'format'])
+                    ?? ['is_active' => true, 'frequency' => SavedFilterReport::WEEKLY, 'day' => 1, 'time' => '08:00', 'format' => 'csv'];
+            })
+            ->form([
+                Toggle::make('is_active')
+                    ->label(__('filament-saved-filter::saved-filter.fields.report_active')),
+                Select::make('frequency')
+                    ->label(__('filament-saved-filter::saved-filter.fields.frequency'))
+                    ->options(collect([SavedFilterReport::DAILY, SavedFilterReport::WEEKLY, SavedFilterReport::MONTHLY])
+                        ->mapWithKeys(fn (string $frequency) => [$frequency => __("filament-saved-filter::saved-filter.frequencies.{$frequency}")])
+                        ->all())
+                    ->required()
+                    ->live(),
+                Select::make('day')
+                    ->label(__('filament-saved-filter::saved-filter.fields.day'))
+                    ->options(fn ($get): array => $get('frequency') === SavedFilterReport::WEEKLY
+                        ? collect(range(1, 7))->mapWithKeys(fn (int $day) => [$day => now()->startOfWeek(CarbonInterface::MONDAY)->addDays($day - 1)->translatedFormat('l')])->all()
+                        : array_combine(range(1, 28), range(1, 28)))
+                    ->visible(fn ($get): bool => $get('frequency') !== SavedFilterReport::DAILY)
+                    ->required(),
+                TimePicker::make('time')
+                    ->label(__('filament-saved-filter::saved-filter.fields.time'))
+                    ->seconds(false)
+                    ->required(),
+                $this->getSavedFilterReportFormatField(),
+            ])
+            ->action(function (array $data) use ($active): void {
+                $filter = $active();
+                $owner = $this->getSavedFilterOwner();
+
+                if (! $filter || ! $owner || ! $this->hasSavedFilterReports()) {
+                    return;
+                }
+
+                $filter->reports()->updateOrCreate([
+                    'user_type' => $owner->getMorphClass(),
+                    'user_id' => (string) $owner->getKey(),
+                ], [
+                    'context' => $this->getSavedFilterReportContext(),
+                    'frequency' => $data['frequency'],
+                    'day' => $data['frequency'] === SavedFilterReport::DAILY ? null : (int) $data['day'],
+                    'time' => substr((string) $data['time'], 0, 5),
+                    'format' => $data['format'] === 'xlsx' ? 'xlsx' : 'csv',
+                    'is_active' => (bool) ($data['is_active'] ?? false),
+                ]);
+
+                Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.report.notification'))->send();
+            });
+    }
+
+    protected function getSavedFilterReportFormatField(): Select
+    {
+        return Select::make('format')
+            ->label(__('filament-saved-filter::saved-filter.fields.format'))
+            ->options(['csv' => 'CSV', 'xlsx' => 'Excel (XLSX)'])
+            ->default('csv')
+            ->selectablePlaceholder(false)
+            ->required();
     }
 
     protected function getExportSavedFiltersAction(): Action

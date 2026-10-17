@@ -23,6 +23,8 @@ return [
             'submit' => 'Salvar alterações',
             'notification' => 'Visualizações atualizadas',
         ],
+        'email' => ['label' => 'Enviar visualização por email', 'notification' => 'O relatório está a caminho da sua caixa de entrada.'],
+        'report' => ['label' => 'Relatório por email', 'description' => 'Receba esta visualização por email de forma agendada. Só você recebe.', 'notification' => 'Relatório por email salvo'],
         'export' => [
             'label' => 'Exportar visualizações',
         ],
@@ -40,6 +42,11 @@ return [
         'is_public' => 'Compartilhar com minha equipe',
         'as_preset' => 'Salvar como predefinição bloqueada para todos',
         'file' => 'Arquivo JSON',
+        'report_active' => 'Enviar esta visualização para mim por email',
+        'frequency' => 'Frequência',
+        'day' => 'Dia',
+        'time' => 'Horário',
+        'format' => 'Formato',
     ],
     'colors' => [
         'primary' => 'Primária',
@@ -54,6 +61,7 @@ return [
         'shared' => 'Compartilhada',
         'modified' => 'Modificada',
     ],
+    'frequencies' => ['daily' => 'Diário', 'weekly' => 'Semanal', 'monthly' => 'Mensal'],
     'tabs' => [
         'all' => 'Todas',
     ],
