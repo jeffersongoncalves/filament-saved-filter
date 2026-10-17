@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.4.0 - 2026-10-17
+
+### Security
+
+**Upgrade if you run 3.3.0 / 2.3.0 with email reports on a tenant-aware panel.** Filament adds the tenant scope from its request middleware, so a report built outside a request (every scheduled report, and **Email this view** on an async queue) listed the records of every tenant. Reports are now scoped to the subscriber's tenant, and still refused when they have no tenant or left it.
+
+### What's new
+
+- **Don't send when there are no records**: a per-report option to skip empty occurrences.
+- **Spreadsheet formulas neutralized**: record text starting with `=`, `+`, `-` or `@` is prefixed with `'` in CSV/XLSX reports (numbers like `-5` are left alone).
+
+### Fixes
+
+- **Export views** stays hidden when there are no views to export (the `exportable()` flag overwrote that check).
+
 ## 2.3.0 - 2026-10-17
 
 ### What's new
@@ -16,6 +31,7 @@ Requires `jeffersongoncalves/laravel-saved-filter` ^1.5, which stores the schedu
 ```bash
 php artisan vendor:publish --tag="saved-filter-migrations"
 php artisan migrate
+
 
 ```
 If you used export/import, add `->exportable()->importable()` to the plugin to keep them.
@@ -36,6 +52,7 @@ Requires `jeffersongoncalves/laravel-saved-filter` ^1.3. Publish and migrate aga
 ```bash
 php artisan vendor:publish --tag="saved-filter-migrations"
 php artisan migrate
+
 
 
 ```
