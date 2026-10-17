@@ -10,4 +10,9 @@ class ListPosts extends ListRecords
     use HasSavedFilters;
 
     protected static string $resource = PostResource::class;
+
+    public function getSavedFilterExporter(): ?string
+    {
+        return PostExporter::class;
+    }
 }
