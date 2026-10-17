@@ -6,6 +6,7 @@ return [
         'save' => ['label' => 'Cari görünüşü yadda saxla', 'notification' => 'Görünüş yadda saxlanıldı'],
         'update' => ['label' => '":name" görünüşünü cari görünüşlə yenilə', 'notification' => 'Görünüş yeniləndi'],
         'reset' => ['label' => 'Görünüşü təmizlə'],
+        'revert' => ['label' => '":name" dəyişikliklərini geri qaytar'],
         'manage' => ['label' => 'Görünüşləri idarə et', 'description' => 'Artıq istifadə etmədiyiniz görünüşlərin adını dəyişin, sıralayın, standartı seçin və ya silin.', 'submit' => 'Dəyişiklikləri yadda saxla', 'notification' => 'Görünüşlər yeniləndi'],
         'export' => ['label' => 'Görünüşləri ixrac et'],
         'import' => ['label' => 'Görünüşləri idxal et', 'notification' => 'İdxal edilən görünüşlər: :count', 'invalid' => 'Fayl etibarlı görünüş ixracı deyil.'],
@@ -20,6 +21,6 @@ return [
         'file' => 'JSON faylı',
     ],
     'colors' => ['primary' => 'Əsas', 'gray' => 'Boz', 'info' => 'Məlumat', 'success' => 'Uğur', 'warning' => 'Xəbərdarlıq', 'danger' => 'Təhlükə'],
-    'badges' => ['preset' => 'Şablon', 'shared' => 'Paylaşılan'],
+    'badges' => ['preset' => 'Şablon', 'shared' => 'Paylaşılan', 'modified' => 'Dəyişdirilib'],
     'tabs' => ['all' => 'Hamısı'],
 ];

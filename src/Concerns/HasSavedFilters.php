@@ -31,6 +31,9 @@ trait HasSavedFilters
 {
     public ?int $activeSavedFilter = null;
 
+    /** Hash of the table state right after the active filter was applied or saved: tells when it was changed. */
+    public ?string $savedFilterSnapshot = null;
+
     /** Applied once the table exists: during mount() it doesn't yet. */
     protected ?int $pendingSavedFilter = null;
 
@@ -256,6 +259,7 @@ trait HasSavedFilters
         ]));
 
         $this->activeSavedFilter = $filter->getKey();
+        $this->takeSavedFilterSnapshot();
 
         SavedFilterApplied::dispatch($filter, $this->getSavedFilterOwner());
     }
@@ -265,6 +269,23 @@ trait HasSavedFilters
         $this->applySavedFilterState([]);
 
         $this->activeSavedFilter = null;
+        $this->savedFilterSnapshot = null;
+    }
+
+    /** Whether the table was changed since the active filter was applied. */
+    public function isSavedFilterModified(): bool
+    {
+        return $this->activeSavedFilter !== null && $this->savedFilterSnapshot !== $this->hashSavedFilterState();
+    }
+
+    protected function takeSavedFilterSnapshot(): void
+    {
+        $this->savedFilterSnapshot = $this->hashSavedFilterState();
+    }
+
+    protected function hashSavedFilterState(): string
+    {
+        return md5((string) json_encode($this->getCurrentSavedFilterState()));
     }
 
     /**
@@ -355,6 +376,7 @@ trait HasSavedFilters
             ActionGroup::make([
                 $this->getSaveSavedFilterAction(),
                 $this->getUpdateSavedFilterAction(),
+                $this->getRevertSavedFilterAction(),
                 $this->getResetSavedFilterAction(),
                 $this->getManageSavedFiltersAction(),
                 $this->getExportSavedFiltersAction()->visible($plugin->isExportable()),
@@ -364,6 +386,8 @@ trait HasSavedFilters
             ->label(__('filament-saved-filter::saved-filter.actions.group'))
             ->icon('heroicon-o-bookmark')
             ->color('gray')
+            ->badge(fn () => $this->isSavedFilterModified() ? __('filament-saved-filter::saved-filter.badges.modified') : null)
+            ->badgeColor('warning')
             ->button();
     }
 
@@ -403,6 +427,7 @@ trait HasSavedFilters
 
                 $this->flushSavedFilters();
                 $this->activeSavedFilter = $filter->getKey();
+                $this->takeSavedFilterSnapshot();
 
                 if ($plugin->getDisplayMode() === SavedFilterPlugin::TABS) {
                     $this->activeTab = "saved-{$filter->getKey()}";
@@ -430,9 +455,21 @@ trait HasSavedFilters
 
                 $filter->update($this->getCurrentSavedFilterState());
                 $this->flushSavedFilters();
+                $this->takeSavedFilterSnapshot();
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.update.notification'))->send();
             });
+    }
+
+    protected function getRevertSavedFilterAction(): Action
+    {
+        $active = fn (): ?SavedFilter => $this->activeSavedFilter ? $this->findSavedFilter($this->activeSavedFilter) : null;
+
+        return Action::make('revertSavedFilter')
+            ->label(fn () => __('filament-saved-filter::saved-filter.actions.revert.label', ['name' => $active()?->name]))
+            ->icon('heroicon-o-arrow-uturn-left')
+            ->visible(fn () => $this->isSavedFilterModified())
+            ->action(fn () => ($filter = $active()) ? $this->applySavedFilter($filter) : null);
     }
 
     protected function getResetSavedFilterAction(): Action
@@ -542,6 +579,7 @@ trait HasSavedFilters
                 FileUpload::make('file')
                     ->label(__('filament-saved-filter::saved-filter.fields.file'))
                     ->acceptedFileTypes(['application/json', 'text/plain'])
+                    ->maxSize(1024)
                     ->storeFiles(false)
                     ->required(),
             ])
@@ -557,7 +595,7 @@ trait HasSavedFilters
 
                 // Only this table's filters, owned by the importing user: no locked or (unless allowed) shared ones.
                 $rows = collect($payload['saved_filters'] ?? $payload)
-                    ->filter(fn ($row) => is_array($row) && ($row['resource'] ?? null) === $this->getSavedFilterResource())
+                    ->filter(fn ($row) => is_array($row) && ($row['resource'] ?? null) === $this->getSavedFilterResource() && $this->isImportableSavedFilterRow($row))
                     ->map(fn (array $row) => [...$row, 'is_public' => $plugin->userCanShare() && ($row['is_public'] ?? false)])
                     ->values()
                     ->all();
@@ -568,6 +606,30 @@ trait HasSavedFilters
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.import.notification', ['count' => $imported->count()]))->send();
             });
+    }
+
+    /**
+     * A hand-edited file may carry any type: skip rows the columns can't hold instead of failing the whole import.
+     *
+     * @param  array<mixed>  $row
+     */
+    protected function isImportableSavedFilterRow(array $row): bool
+    {
+        if (! is_string($row['name'] ?? null) || mb_strlen($row['name']) > 255) {
+            return false;
+        }
+
+        foreach ($row as $key => $value) {
+            $valid = in_array($key, ['filters', 'toggled_columns'], true)
+                ? $value === null || is_array($value)
+                : $value === null || is_scalar($value);
+
+            if (! $valid) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
