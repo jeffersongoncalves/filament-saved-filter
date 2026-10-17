@@ -152,7 +152,7 @@ public function getSavedFilterExporter(): ?string
 ```
 
 - **Email this view** sends the current table state (saved or not) to the user, as CSV or XLSX.
-- **Email report** on the active view: each user turns a report on or off for themselves, on their own views, shared ones and presets, and picks daily, weekly or monthly, the day, the time (app timezone) and the format. It goes only to that user.
+- **Email report** (in the "Views" menu, opens on the active view or lets you pick one): each user turns a report on or off for themselves, on their own views, shared ones and presets, and picks daily, weekly or monthly, the day, the time (app timezone) and the format. It goes only to that user.
 - The file uses the exporter's columns enabled by default and its formatting, on the records of the view as that user sees them: the report is built with their login and tenant, and nothing is sent when they lost access to the resource or the tenant, or when the view is no longer shared with them.
 - "Don't send when there are no records" skips the occurrences where the view is empty.
 - Text that a spreadsheet would run as a formula (starting with `=`, `+`, `-` or `@`) is prefixed with `'`.

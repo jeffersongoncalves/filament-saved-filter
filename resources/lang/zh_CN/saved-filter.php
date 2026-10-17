@@ -21,6 +21,7 @@ return [
         'is_public' => '与我的团队共享',
         'as_preset' => '保存为对所有人锁定的预设',
         'file' => 'JSON 文件',
+        'view' => '视图',
         'report_active' => '通过邮件把此视图发给我',
         'frequency' => '频率',
         'day' => '日期',

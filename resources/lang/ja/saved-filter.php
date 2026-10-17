@@ -21,6 +21,7 @@ return [
         'is_public' => 'チームと共有',
         'as_preset' => '全員向けのロックされたプリセットとして保存',
         'file' => 'JSONファイル',
+        'view' => 'ビュー',
         'report_active' => 'このビューをメールで送る',
         'frequency' => '頻度',
         'day' => '日',

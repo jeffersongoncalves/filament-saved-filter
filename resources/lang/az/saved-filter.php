@@ -21,6 +21,7 @@ return [
         'is_public' => 'Komandamla paylaş',
         'as_preset' => 'Hamı üçün kilidli şablon kimi yadda saxla',
         'file' => 'JSON faylı',
+        'view' => 'Görünüş',
         'report_active' => 'Bu görünüşü mənə e-poçtla göndər',
         'frequency' => 'Tezlik',
         'day' => 'Gün',
