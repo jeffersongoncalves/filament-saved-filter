@@ -102,7 +102,8 @@ it('opens the default saved filter', function () {
     Livewire::test(ListPosts::class)
         ->assertSet('activeTab', "saved-{$filter->id}")
         ->assertSet('activeSavedFilter', $filter->id)
-        ->assertCanNotSeeTableRecords([$this->draft]);
+        ->assertCanNotSeeTableRecords([$this->draft])
+        ->assertTableActionHidden('revertSavedFilter');
 });
 
 it('ignores filters, columns and sorts the table no longer has', function () {
@@ -171,6 +172,30 @@ it('updates the active filter, but not a locked preset', function () {
         ->assertTableActionHidden('updateSavedFilter');
 
     expect($filter->refresh()->search)->toBe('world');
+});
+
+it('flags a changed view and reverts it to the saved state', function () {
+    $filter = savedFilter();
+
+    $component = Livewire::test(ListPosts::class)
+        ->set('activeTab', "saved-{$filter->id}")
+        ->assertTableActionHidden('revertSavedFilter');
+
+    expect($component->instance()->isSavedFilterModified())->toBeFalse();
+
+    $component->filterTable('status', 'draft')
+        ->assertTableActionVisible('revertSavedFilter');
+
+    expect($component->instance()->isSavedFilterModified())->toBeTrue();
+
+    $component->callTableAction('revertSavedFilter')
+        ->assertSet('tableFilters.status.value', 'published')
+        ->assertCanNotSeeTableRecords([$this->draft])
+        ->assertTableActionHidden('revertSavedFilter');
+
+    $component->searchTable('world')->callTableAction('updateSavedFilter');
+
+    expect($component->instance()->isSavedFilterModified())->toBeFalse();
 });
 
 it('renames, reorders and deletes from the manage slide-over', function () {
@@ -317,6 +342,20 @@ it('imports filters of this table as the user\'s own', function () {
         ->is_locked->toBeFalse()
         ->is_public->toBeTrue()
         ->isOwnedBy($this->user)->toBeTrue();
+});
+
+it('skips imported rows the columns can\'t hold', function () {
+    $json = json_encode(['saved_filters' => [
+        ['resource' => PostResource::class, 'name' => str_repeat('x', 256)],
+        ['resource' => PostResource::class, 'name' => 'Bad filters', 'filters' => 'nope'],
+        ['resource' => PostResource::class, 'name' => 'Bad search', 'search' => ['nested']],
+        ['resource' => PostResource::class, 'name' => 'Fine'],
+    ]]);
+
+    Livewire::test(ListPosts::class)
+        ->callTableAction('importSavedFilters', data: ['file' => UploadedFile::fake()->createWithContent('saved-filters.json', $json)]);
+
+    expect(SavedFilter::query()->pluck('name')->all())->toBe(['Fine']);
 });
 
 it('uses translated labels', function () {

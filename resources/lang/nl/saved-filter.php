@@ -6,6 +6,7 @@ return [
         'save' => ['label' => 'Huidige weergave opslaan', 'notification' => 'Weergave opgeslagen'],
         'update' => ['label' => '":name" bijwerken met de huidige weergave', 'notification' => 'Weergave bijgewerkt'],
         'reset' => ['label' => 'Weergave wissen'],
+        'revert' => ['label' => 'Wijzigingen in ":name" terugdraaien'],
         'manage' => ['label' => 'Weergaven beheren', 'description' => 'Hernoem, herschik, kies de standaardweergave of verwijder weergaven die je niet meer gebruikt.', 'submit' => 'Wijzigingen opslaan', 'notification' => 'Weergaven bijgewerkt'],
         'export' => ['label' => 'Weergaven exporteren'],
         'import' => ['label' => 'Weergaven importeren', 'notification' => 'Weergaven geïmporteerd: :count', 'invalid' => 'Het bestand is geen geldige export van weergaven.'],
@@ -20,6 +21,6 @@ return [
         'file' => 'JSON-bestand',
     ],
     'colors' => ['primary' => 'Primair', 'gray' => 'Grijs', 'info' => 'Info', 'success' => 'Succes', 'warning' => 'Waarschuwing', 'danger' => 'Gevaar'],
-    'badges' => ['preset' => 'Voorinstelling', 'shared' => 'Gedeeld'],
+    'badges' => ['preset' => 'Voorinstelling', 'shared' => 'Gedeeld', 'modified' => 'Gewijzigd'],
     'tabs' => ['all' => 'Alle'],
 ];

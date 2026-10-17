@@ -6,6 +6,7 @@ return [
         'save' => ['label' => 'Zapisz bieżący widok', 'notification' => 'Widok zapisany'],
         'update' => ['label' => 'Zaktualizuj „:name” bieżącym widokiem', 'notification' => 'Widok zaktualizowany'],
         'reset' => ['label' => 'Wyczyść widok'],
+        'revert' => ['label' => 'Cofnij zmiany w ":name"'],
         'manage' => ['label' => 'Zarządzaj widokami', 'description' => 'Zmieniaj nazwy, kolejność, ustaw widok domyślny lub usuń widoki, których już nie używasz.', 'submit' => 'Zapisz zmiany', 'notification' => 'Widoki zaktualizowane'],
         'export' => ['label' => 'Eksportuj widoki'],
         'import' => ['label' => 'Importuj widoki', 'notification' => 'Zaimportowane widoki: :count', 'invalid' => 'Plik nie jest prawidłowym eksportem widoków.'],
@@ -20,6 +21,6 @@ return [
         'file' => 'Plik JSON',
     ],
     'colors' => ['primary' => 'Podstawowy', 'gray' => 'Szary', 'info' => 'Informacja', 'success' => 'Sukces', 'warning' => 'Ostrzeżenie', 'danger' => 'Niebezpieczeństwo'],
-    'badges' => ['preset' => 'Szablon', 'shared' => 'Udostępniony'],
+    'badges' => ['preset' => 'Szablon', 'shared' => 'Udostępniony', 'modified' => 'Zmieniony'],
     'tabs' => ['all' => 'Wszystkie'],
 ];
