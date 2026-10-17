@@ -139,7 +139,7 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
             return [$content, $count];
         }
 
-        $csv = CsvWriter::createFromString();
+        $csv = CsvWriter::fromString();
         $csv->setDelimiter($exporter::getCsvDelimiter());
         $csv->insertOne(array_values($columnMap));
 
