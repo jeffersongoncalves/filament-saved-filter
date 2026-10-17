@@ -16,6 +16,8 @@ return [
         ],
         'manage' => [
             'label' => 'Manage views',
+            'description' => 'Rename, reorder, set the default or delete the views you no longer use.',
+            'submit' => 'Save changes',
             'notification' => 'Views updated',
         ],
         'export' => [

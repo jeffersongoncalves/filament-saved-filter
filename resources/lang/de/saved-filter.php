@@ -6,7 +6,7 @@ return [
         'save' => ['label' => 'Aktuelle Ansicht speichern', 'notification' => 'Ansicht gespeichert'],
         'update' => ['label' => '„:name“ mit der aktuellen Ansicht aktualisieren', 'notification' => 'Ansicht aktualisiert'],
         'reset' => ['label' => 'Ansicht zurücksetzen'],
-        'manage' => ['label' => 'Ansichten verwalten', 'notification' => 'Ansichten aktualisiert'],
+        'manage' => ['label' => 'Ansichten verwalten', 'description' => 'Benennen Sie Ansichten um, ordnen Sie sie neu, legen Sie die Standardansicht fest oder löschen Sie nicht mehr benötigte.', 'submit' => 'Änderungen speichern', 'notification' => 'Ansichten aktualisiert'],
         'export' => ['label' => 'Ansichten exportieren'],
         'import' => ['label' => 'Ansichten importieren', 'notification' => 'Importierte Ansichten: :count', 'invalid' => 'Die Datei ist kein gültiger Ansichten-Export.'],
     ],
