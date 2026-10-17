@@ -20,7 +20,7 @@ Built on [jeffersongoncalves/laravel-saved-filter](https://github.com/jeffersong
 
 ## Features
 
-- **Save current view** — filters, sort, search, toggled columns, records per page and grouping, with a name, icon and color.
+- **Save current view** — filters, sort, search, per-column searches, toggled columns, records per page and grouping, with a name, icon and color.
 - **Tabs or dropdown** — one tab per saved filter (plus "All"), or a list in the "Views" menu.
 - **Default view** — opened automatically when the user lands on the table (a URL with filters still wins).
 - **Team views** — share a filter with the other users of the tenant. Tabs show who else sees a view: **Preset**, **Shared**, or the colleague who created it.
@@ -49,6 +49,8 @@ composer require jeffersongoncalves/filament-saved-filter:"^2.0"
 php artisan vendor:publish --tag="saved-filter-migrations"
 php artisan migrate
 ```
+
+> **Upgrading?** Run the same `vendor:publish` + `migrate` again after each update: new columns (like `column_searches`) come as new migrations, and the ones you already ran are skipped.
 
 Register the plugin in your panel provider:
 
