@@ -14,6 +14,9 @@ return [
         'reset' => [
             'label' => 'Limpar visualização',
         ],
+        'revert' => [
+            'label' => 'Reverter alterações em ":name"',
+        ],
         'manage' => [
             'label' => 'Gerenciar visualizações',
             'description' => 'Renomeie, reordene, defina a padrão ou exclua as visualizações que não usa mais.',
@@ -49,6 +52,7 @@ return [
     'badges' => [
         'preset' => 'Predefinição',
         'shared' => 'Compartilhada',
+        'modified' => 'Modificada',
     ],
     'tabs' => [
         'all' => 'Todas',

@@ -6,6 +6,7 @@ return [
         'save' => ['label' => 'Guardar vista actual', 'notification' => 'Vista guardada'],
         'update' => ['label' => 'Actualizar ":name" con la vista actual', 'notification' => 'Vista actualizada'],
         'reset' => ['label' => 'Limpiar vista'],
+        'revert' => ['label' => 'Descartar cambios en ":name"'],
         'manage' => ['label' => 'Gestionar vistas', 'description' => 'Cambia el nombre, reordena, define la predeterminada o elimina las vistas que ya no usas.', 'submit' => 'Guardar cambios', 'notification' => 'Vistas actualizadas'],
         'export' => ['label' => 'Exportar vistas'],
         'import' => ['label' => 'Importar vistas', 'notification' => 'Vistas importadas: :count', 'invalid' => 'El archivo no es una exportación de vistas válida.'],
@@ -20,6 +21,6 @@ return [
         'file' => 'Archivo JSON',
     ],
     'colors' => ['primary' => 'Primario', 'gray' => 'Gris', 'info' => 'Información', 'success' => 'Éxito', 'warning' => 'Advertencia', 'danger' => 'Peligro'],
-    'badges' => ['preset' => 'Predefinida', 'shared' => 'Compartida'],
+    'badges' => ['preset' => 'Predefinida', 'shared' => 'Compartida', 'modified' => 'Modificada'],
     'tabs' => ['all' => 'Todas'],
 ];

@@ -14,6 +14,9 @@ return [
         'reset' => [
             'label' => 'Clear view',
         ],
+        'revert' => [
+            'label' => 'Revert changes to ":name"',
+        ],
         'manage' => [
             'label' => 'Manage views',
             'description' => 'Rename, reorder, set the default or delete the views you no longer use.',
@@ -49,6 +52,7 @@ return [
     'badges' => [
         'preset' => 'Preset',
         'shared' => 'Shared',
+        'modified' => 'Modified',
     ],
     'tabs' => [
         'all' => 'All',

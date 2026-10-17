@@ -6,6 +6,7 @@ return [
         'save' => ['label' => 'Geçerli görünümü kaydet', 'notification' => 'Görünüm kaydedildi'],
         'update' => ['label' => '":name" görünümünü geçerli görünümle güncelle', 'notification' => 'Görünüm güncellendi'],
         'reset' => ['label' => 'Görünümü temizle'],
+        'revert' => ['label' => '":name" değişikliklerini geri al'],
         'manage' => ['label' => 'Görünümleri yönet', 'description' => 'Artık kullanmadığınız görünümleri yeniden adlandırın, sıralayın, varsayılanı belirleyin veya silin.', 'submit' => 'Değişiklikleri kaydet', 'notification' => 'Görünümler güncellendi'],
         'export' => ['label' => 'Görünümleri dışa aktar'],
         'import' => ['label' => 'Görünümleri içe aktar', 'notification' => 'İçe aktarılan görünümler: :count', 'invalid' => 'Dosya geçerli bir görünüm dışa aktarımı değil.'],
@@ -20,6 +21,6 @@ return [
         'file' => 'JSON dosyası',
     ],
     'colors' => ['primary' => 'Birincil', 'gray' => 'Gri', 'info' => 'Bilgi', 'success' => 'Başarılı', 'warning' => 'Uyarı', 'danger' => 'Tehlike'],
-    'badges' => ['preset' => 'Ön ayar', 'shared' => 'Paylaşılan'],
+    'badges' => ['preset' => 'Ön ayar', 'shared' => 'Paylaşılan', 'modified' => 'Değiştirildi'],
     'tabs' => ['all' => 'Tümü'],
 ];

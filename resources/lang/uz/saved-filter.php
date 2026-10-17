@@ -6,6 +6,7 @@ return [
         'save' => ['label' => 'Joriy koʻrinishni saqlash', 'notification' => 'Koʻrinish saqlandi'],
         'update' => ['label' => '":name" koʻrinishini joriy koʻrinish bilan yangilash', 'notification' => 'Koʻrinish yangilandi'],
         'reset' => ['label' => 'Koʻrinishni tozalash'],
+        'revert' => ['label' => '":name" o\'zgarishlarini bekor qilish'],
         'manage' => ['label' => 'Koʻrinishlarni boshqarish', 'description' => 'Endi foydalanmaydigan koʻrinishlarni qayta nomlang, tartiblang, standartini tanlang yoki oʻchiring.', 'submit' => 'Oʻzgarishlarni saqlash', 'notification' => 'Koʻrinishlar yangilandi'],
         'export' => ['label' => 'Koʻrinishlarni eksport qilish'],
         'import' => ['label' => 'Koʻrinishlarni import qilish', 'notification' => 'Import qilingan koʻrinishlar: :count', 'invalid' => 'Fayl yaroqli koʻrinishlar eksporti emas.'],
@@ -20,6 +21,6 @@ return [
         'file' => 'JSON fayl',
     ],
     'colors' => ['primary' => 'Asosiy', 'gray' => 'Kulrang', 'info' => 'Maʼlumot', 'success' => 'Muvaffaqiyat', 'warning' => 'Ogohlantirish', 'danger' => 'Xavf'],
-    'badges' => ['preset' => 'Andoza', 'shared' => 'Ulashilgan'],
+    'badges' => ['preset' => 'Andoza', 'shared' => 'Ulashilgan', 'modified' => 'O\'zgartirilgan'],
     'tabs' => ['all' => 'Hammasi'],
 ];

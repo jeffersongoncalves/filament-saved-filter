@@ -28,7 +28,8 @@ Built on [jeffersongoncalves/laravel-saved-filter](https://github.com/jeffersong
 - **Locked presets** — created in a seeder or by users you allow; everyone sees them, nobody changes them.
 - **Manage views** — rename, reorder, change icon/color, set the default and delete, in a slide-over.
 - **Update view** — overwrite the active filter with the current table state.
-- **Export / import** — download the views as JSON and upload them in another environment.
+- **Modified badge + revert** — once the table drifts from the active view, the "Views" button shows *Modified* and **Revert changes** restores the saved state.
+- **Export / import** — download the views as JSON and upload them in another environment (files up to 1 MB; rows with malformed fields are skipped, a view with the same name is overwritten).
 - **Safe restores** — filters, columns and sort columns that no longer exist in the table are skipped, no exceptions.
 - **Multi-tenancy** — scoped to the Filament tenant; database-per-tenant setups work as is.
 - **Events** for auditing, **19 languages**, Filament 3, 4 and 5.
