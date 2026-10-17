@@ -20,5 +20,6 @@ return [
         'file' => 'JSONファイル',
     ],
     'colors' => ['primary' => 'プライマリ', 'gray' => 'グレー', 'info' => '情報', 'success' => '成功', 'warning' => '警告', 'danger' => '危険'],
+    'badges' => ['preset' => 'プリセット', 'shared' => '共有'],
     'tabs' => ['all' => 'すべて'],
 ];

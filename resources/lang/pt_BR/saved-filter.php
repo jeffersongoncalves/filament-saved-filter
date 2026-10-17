@@ -46,6 +46,10 @@ return [
         'warning' => 'Aviso',
         'danger' => 'Perigo',
     ],
+    'badges' => [
+        'preset' => 'Predefinição',
+        'shared' => 'Compartilhada',
+    ],
     'tabs' => [
         'all' => 'Todas',
     ],

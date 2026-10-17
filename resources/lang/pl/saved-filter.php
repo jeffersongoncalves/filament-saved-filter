@@ -20,5 +20,6 @@ return [
         'file' => 'Plik JSON',
     ],
     'colors' => ['primary' => 'Podstawowy', 'gray' => 'Szary', 'info' => 'Informacja', 'success' => 'Sukces', 'warning' => 'Ostrzeżenie', 'danger' => 'Niebezpieczeństwo'],
+    'badges' => ['preset' => 'Szablon', 'shared' => 'Udostępniony'],
     'tabs' => ['all' => 'Wszystkie'],
 ];

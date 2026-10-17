@@ -69,7 +69,10 @@ trait HasSavedFilters
         $tabs = ['all' => Tab::make(__('filament-saved-filter::saved-filter.tabs.all'))];
 
         foreach ($this->getSavedFilters() as $filter) {
-            $tabs["saved-{$filter->getKey()}"] = Tab::make($filter->name)->icon($this->getSavedFilterIcon($filter));
+            $tabs["saved-{$filter->getKey()}"] = Tab::make($filter->name)
+                ->icon($this->getSavedFilterIcon($filter))
+                ->badge($this->getSavedFilterBadge($filter))
+                ->badgeColor('gray');
         }
 
         return $tabs;
@@ -154,8 +157,55 @@ trait HasSavedFilters
     {
         return $this->cachedSavedFilters ??= $this->getSavedFilterQuery()
             ->visibleTo($this->getSavedFilterOwner())
+            ->with('owner')
             ->ordered()
             ->get();
+    }
+
+    /** Who else sees it: "Preset", the author of a colleague's view, or "Shared" for your own public one. */
+    protected function getSavedFilterBadge(SavedFilter $filter): ?string
+    {
+        if ($filter->isPreset()) {
+            return __('filament-saved-filter::saved-filter.badges.preset');
+        }
+
+        if (! $filter->isOwnedBy($this->getSavedFilterOwner())) {
+            return ($filter->owner ? Filament::getUserName($filter->owner) : null) ?: __('filament-saved-filter::saved-filter.badges.shared');
+        }
+
+        return $filter->is_public ? __('filament-saved-filter::saved-filter.badges.shared') : null;
+    }
+
+    /** Jump to the view at a position: 0 = "All" (no saved filter), 1 = the first saved filter… */
+    public function selectSavedFilter(int $position): void
+    {
+        if ($position === 0) {
+            $this->switchSavedFilter(null);
+        } elseif ($filter = $this->getSavedFilters()->values()->get($position - 1)) {
+            $this->switchSavedFilter($filter);
+        }
+    }
+
+    /** Move to the next (1) or previous (-1) view, wrapping around through "All". */
+    public function cycleSavedFilter(int $step): void
+    {
+        $ids = [null, ...$this->getSavedFilters()->modelKeys()];
+        $current = array_search($this->activeSavedFilter, $ids, true);
+        $next = $ids[((int) $current + $step + count($ids)) % count($ids)];
+
+        $this->switchSavedFilter($next === null ? null : $this->findSavedFilter($next));
+    }
+
+    protected function switchSavedFilter(?SavedFilter $filter): void
+    {
+        if (SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS) {
+            $this->activeTab = $filter ? "saved-{$filter->getKey()}" : 'all';
+            $this->updatedActiveTab();
+
+            return;
+        }
+
+        $filter ? $this->applySavedFilter($filter) : $this->resetSavedFilterState();
     }
 
     protected function findSavedFilter(int $id): ?SavedFilter
@@ -202,7 +252,9 @@ trait HasSavedFilters
 
     public function applySavedFilter(SavedFilter $filter): void
     {
-        $this->applySavedFilterState($filter->filters ?? [], $filter->sort_column, $filter->sort_direction, $filter->search, $filter->toggled_columns ?? []);
+        $this->applySavedFilterState($filter->only([
+            'filters', 'sort_column', 'sort_direction', 'search', 'toggled_columns', 'records_per_page', 'grouping', 'grouping_direction',
+        ]));
 
         $this->activeSavedFilter = $filter->getKey();
 
@@ -211,30 +263,43 @@ trait HasSavedFilters
 
     public function resetSavedFilterState(): void
     {
-        $this->applySavedFilterState([], null, null, null, []);
+        $this->applySavedFilterState([]);
 
         $this->activeSavedFilter = null;
     }
 
     /**
-     * Restore a state on the table. Filters, sort columns and toggled columns the table no longer has are ignored.
+     * Restore a state on the table (empty = the table's defaults). Filters, sort columns, toggled columns,
+     * pagination options and groups the table no longer has are ignored.
      *
-     * @param  array<string, mixed>  $filters
-     * @param  array<string, bool>  $toggledColumns
+     * @param  array<string, mixed>  $state  SavedFilter attributes
      */
-    protected function applySavedFilterState(array $filters, ?string $sortColumn, ?string $sortDirection, ?string $search, array $toggledColumns): void
+    protected function applySavedFilterState(array $state): void
     {
         $table = $this->getTable();
 
-        $this->getTableFiltersForm()->fill(array_intersect_key($filters, $table->getFilters()));
+        $this->getTableFiltersForm()->fill(array_intersect_key($state['filters'] ?? [], $table->getFilters()));
         $table->hasDeferredFilters() ? $this->applyTableFilters() : $this->handleTableFilterUpdates();
 
-        $sortColumn = filled($sortColumn) && $table->getSortableVisibleColumn($sortColumn) ? $sortColumn : null;
-        $this->tableSort = $sortColumn ? $sortColumn.':'.($sortDirection === 'desc' ? 'desc' : 'asc') : null;
+        $sortColumn = filled($state['sort_column'] ?? null) && $table->getSortableVisibleColumn($state['sort_column']) ? $state['sort_column'] : null;
+        $this->tableSort = $sortColumn ? $sortColumn.':'.(($state['sort_direction'] ?? null) === 'desc' ? 'desc' : 'asc') : null;
         $this->updatedTableSort();
 
-        $this->tableSearch = (string) $search;
+        $this->tableSearch = (string) ($state['search'] ?? '');
         $this->updatedTableSearch();
+
+        if ($table->isPaginated()) {
+            $perPage = (string) ($state['records_per_page'] ?? '');
+            $option = collect($table->getPaginationPageOptions())->first(fn ($option) => (string) $option === $perPage);
+            $this->tableRecordsPerPage = $option ?? $table->getDefaultPaginationPageOption();
+            $this->updatedTableRecordsPerPage();
+        }
+
+        $grouping = filled($state['grouping'] ?? null) && $table->getGroup($state['grouping']) ? $state['grouping'] : null;
+        $this->tableGrouping = $grouping ? $grouping.':'.(($state['grouping_direction'] ?? null) === 'desc' ? 'desc' : 'asc') : null;
+        $this->updatedTableGrouping();
+
+        $toggledColumns = $state['toggled_columns'] ?? [];
 
         if (! $table->hasColumnsLayout()) {
             $toggle = function (array $item) use ($toggledColumns): array {
@@ -258,7 +323,7 @@ trait HasSavedFilters
     }
 
     /**
-     * @return array{filters: array<string, mixed>, sort_column: ?string, sort_direction: ?string, search: ?string, toggled_columns: array<string, bool>}
+     * @return array{filters: array<string, mixed>, sort_column: ?string, sort_direction: ?string, search: ?string, toggled_columns: array<string, bool>, records_per_page: ?string, grouping: ?string, grouping_direction: ?string}
      */
     protected function getCurrentSavedFilterState(): array
     {
@@ -278,6 +343,9 @@ trait HasSavedFilters
             'sort_direction' => $this->getTableSortColumn() ? $this->getTableSortDirection() : null,
             'search' => filled($this->tableSearch) ? (string) $this->tableSearch : null,
             'toggled_columns' => $toggled,
+            'records_per_page' => $this->getTable()->isPaginated() && filled($this->tableRecordsPerPage) ? (string) $this->tableRecordsPerPage : null,
+            'grouping' => filled($this->tableGrouping) ? (string) str($this->tableGrouping)->before(':') : null,
+            'grouping_direction' => $this->getTableGroupingDirection(),
         ];
     }
 
@@ -290,6 +358,8 @@ trait HasSavedFilters
                 ->label($filter->name)
                 ->icon($this->activeSavedFilter === $filter->getKey() ? 'heroicon-m-check' : $this->getSavedFilterIcon($filter))
                 ->color($filter->color ?: 'gray')
+                ->badge($this->getSavedFilterBadge($filter))
+                ->badgeColor('gray')
                 ->action(fn () => $this->applySavedFilter($filter)))
                 ->all()
             : [];
@@ -318,6 +388,7 @@ trait HasSavedFilters
         return Action::make('saveSavedFilter')
             ->label(__('filament-saved-filter::saved-filter.actions.save.label'))
             ->icon('heroicon-o-plus')
+            ->keyBindings($plugin->getSaveKeyBindings())
             ->modalWidth('lg')
             ->schema([
                 ...$this->getSavedFilterFormFields(),
@@ -403,6 +474,7 @@ trait HasSavedFilters
             ->modalDescription(__('filament-saved-filter::saved-filter.actions.manage.description'))
             ->modalSubmitActionLabel(__('filament-saved-filter::saved-filter.actions.manage.submit'))
             ->icon('heroicon-o-adjustments-horizontal')
+            ->keyBindings($plugin->getManageKeyBindings())
             ->slideOver()
             ->visible(fn () => $this->getEditableSavedFilters()->isNotEmpty())
             ->fillForm(fn () => [

@@ -20,5 +20,6 @@ return [
         'file' => 'فایل JSON',
     ],
     'colors' => ['primary' => 'اصلی', 'gray' => 'خاکستری', 'info' => 'اطلاعات', 'success' => 'موفقیت', 'warning' => 'هشدار', 'danger' => 'خطر'],
+    'badges' => ['preset' => 'پیش‌تنظیم', 'shared' => 'اشتراکی'],
     'tabs' => ['all' => 'همه'],
 ];

@@ -20,5 +20,6 @@ return [
         'file' => 'JSON fayl',
     ],
     'colors' => ['primary' => 'Asosiy', 'gray' => 'Kulrang', 'info' => 'Maʼlumot', 'success' => 'Muvaffaqiyat', 'warning' => 'Ogohlantirish', 'danger' => 'Xavf'],
+    'badges' => ['preset' => 'Andoza', 'shared' => 'Ulashilgan'],
     'tabs' => ['all' => 'Hammasi'],
 ];

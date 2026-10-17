@@ -20,5 +20,6 @@ return [
         'file' => 'JSON 文件',
     ],
     'colors' => ['primary' => '主要', 'gray' => '灰色', 'info' => '信息', 'success' => '成功', 'warning' => '警告', 'danger' => '危险'],
+    'badges' => ['preset' => '预设', 'shared' => '共享'],
     'tabs' => ['all' => '全部'],
 ];
