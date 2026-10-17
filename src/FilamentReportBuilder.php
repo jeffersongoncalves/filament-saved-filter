@@ -35,6 +35,8 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
 
         Filament::setCurrentPanel($panel);
         Filament::auth()->setUser($user);
+        // A queue worker keeps the previous job's tenant: never let it leak into this report.
+        Filament::setTenant(null, isQuiet: true);
 
         // A tenant-aware panel without its tenant would run the page query across every tenant.
         if ($panel->hasTenancy()) {
