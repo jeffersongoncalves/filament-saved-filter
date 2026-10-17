@@ -92,7 +92,7 @@ it('lets each user subscribe to a shared view, and sends it to that user only', 
         ->time->toBe('09:30')
         ->format->toBe('xlsx')
         ->is_active->toBeTrue()
-        ->context->toEqual(['panel' => 'test', 'page' => ListPosts::class, 'tenant' => null, 'skip_empty' => false]); // MySQL JSON doesn't keep key order
+        ->context->toEqual(['panel' => 'test', 'page' => ListPosts::class, 'tenant' => null, 'saved_filter_id' => $this->drafts->id, 'skip_empty' => false]); // MySQL JSON doesn't keep key order
 });
 
 it('sends due reports once per occurrence and skips turned off ones', function () {
@@ -174,6 +174,31 @@ it('refuses to schedule a view the user does not see', function () {
         ->callTableAction('savedFilterReport', data: ['saved_filter_id' => $private->id, 'frequency' => 'daily', 'time' => '08:00', 'format' => 'csv']);
 
     expect(SavedFilterReport::query()->count())->toBe(0);
+});
+
+it('links the email to the view, or to the page once the table drifted from it', function () {
+    $component = Livewire::test(ListPosts::class)
+        ->set('activeTab', "saved-{$this->drafts->id}")
+        ->callTableAction('emailSavedFilter', data: ['format' => 'csv']);
+
+    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->url === ListPosts::getUrl(['tab' => "saved-{$this->drafts->id}"], panel: 'test')
+        && $mail->schedule === null);
+
+    Mail::fake();
+    $component->searchTable('Work')->callTableAction('emailSavedFilter', data: ['format' => 'csv']);
+
+    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => $mail->url === ListPosts::getUrl(panel: 'test'));
+});
+
+it('tells when a scheduled report goes out and links to its view', function () {
+    $this->travelTo(now()->setTime(7, 0));
+    subscribe($this->bob, $this->drafts);
+
+    $this->travelTo(now()->setTime(8, 10));
+    $this->artisan('saved-filter:send-reports');
+
+    Mail::assertSent(SavedFilterReportMail::class, fn (SavedFilterReportMail $mail) => filled($mail->schedule)
+        && $mail->url === ListPosts::getUrl(['tab' => "saved-{$this->drafts->id}"], panel: 'test'));
 });
 
 it('skips an empty report only when asked to', function () {

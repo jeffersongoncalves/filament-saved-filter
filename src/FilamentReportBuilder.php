@@ -16,6 +16,7 @@ use JeffersonGoncalves\SavedFilter\ReportFile;
 use League\Csv\Writer as CsvWriter;
 use OpenSpout\Common\Entity\Row;
 use OpenSpout\Writer\XLSX\Writer as XlsxWriter;
+use Throwable;
 
 /**
  * Builds a report from the ListRecords page in its context ({panel, page, tenant_id}), as the user, with the
@@ -70,7 +71,33 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
             return null;
         }
 
-        return new ReportFile($content, str($name)->slug()->append('-', now()->format('Y-m-d'), '.', $format)->toString(), $count);
+        return new ReportFile(
+            $content,
+            str($name)->slug()->append('-', now()->format('Y-m-d'), '.', $format)->toString(),
+            $count,
+            $this->getUrl($page, $context),
+        );
+    }
+
+    /**
+     * The page in the report's panel and tenant, on the saved view's tab when the panel shows views as tabs (the
+     * dropdown keeps no view in the URL). Used for the email's "open the view" button.
+     *
+     * @param  class-string  $page
+     * @param  array<string, mixed>  $context
+     */
+    protected function getUrl(string $page, array $context): ?string
+    {
+        $view = $context['saved_filter_id'] ?? null;
+        $parameters = filled($view) && SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS
+            ? ['tab' => "saved-{$view}"]
+            : [];
+
+        try {
+            return $page::getUrl($parameters, panel: Filament::getCurrentPanel()?->getId(), tenant: Filament::getTenant());
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**
