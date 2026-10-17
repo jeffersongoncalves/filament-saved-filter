@@ -154,6 +154,8 @@ public function getSavedFilterExporter(): ?string
 - **Email this view** sends the current table state (saved or not) to the user, as CSV or XLSX.
 - **Email report** on the active view: each user turns a report on or off for themselves, on their own views, shared ones and presets, and picks daily, weekly or monthly, the day, the time (app timezone) and the format. It goes only to that user.
 - The file uses the exporter's columns enabled by default and its formatting, on the records of the view as that user sees them: the report is built with their login and tenant, and nothing is sent when they lost access to the resource or the tenant, or when the view is no longer shared with them.
+- "Don't send when there are no records" skips the occurrences where the view is empty.
+- Text that a spreadsheet would run as a formula (starting with `=`, `+`, `-` or `@`) is prefixed with `'`.
 - The users need an `email` attribute and the app needs a working mailer and queue.
 
 Scheduling and delivery come from [laravel-saved-filter](https://github.com/jeffersongoncalves/laravel-saved-filter): `saved-filter:send-reports` is registered on the scheduler every 15 minutes, so the server only needs `php artisan schedule:run` in cron. Reports are mailed as attachments: keep them to views whose size your mail provider accepts.

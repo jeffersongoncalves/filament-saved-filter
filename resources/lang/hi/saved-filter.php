@@ -26,6 +26,7 @@ return [
         'day' => 'दिन',
         'time' => 'समय',
         'format' => 'फ़ॉर्मेट',
+        'skip_empty' => 'कोई रिकॉर्ड न हो तो न भेजें',
     ],
     'colors' => ['primary' => 'प्राथमिक', 'gray' => 'ग्रे', 'info' => 'जानकारी', 'success' => 'सफलता', 'warning' => 'चेतावनी', 'danger' => 'खतरा'],
     'badges' => ['preset' => 'प्रीसेट', 'shared' => 'साझा', 'modified' => 'बदला गया'],

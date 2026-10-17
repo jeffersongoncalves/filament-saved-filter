@@ -26,6 +26,7 @@ return [
         'day' => 'Giorno',
         'time' => 'Ora',
         'format' => 'Formato',
+        'skip_empty' => 'Non inviare se non ci sono record',
     ],
     'colors' => ['primary' => 'Primario', 'gray' => 'Grigio', 'info' => 'Info', 'success' => 'Successo', 'warning' => 'Avviso', 'danger' => 'Pericolo'],
     'badges' => ['preset' => 'Preimpostata', 'shared' => 'Condivisa', 'modified' => 'Modificata'],

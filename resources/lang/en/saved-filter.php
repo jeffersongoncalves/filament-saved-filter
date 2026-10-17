@@ -23,8 +23,15 @@ return [
             'submit' => 'Save changes',
             'notification' => 'Views updated',
         ],
-        'email' => ['label' => 'Email this view', 'notification' => 'The report is on its way to your inbox.'],
-        'report' => ['label' => 'Email report', 'description' => 'Get this view by email on a schedule. Only you receive it.', 'notification' => 'Email report saved'],
+        'email' => [
+            'label' => 'Email this view',
+            'notification' => 'The report is on its way to your inbox.',
+        ],
+        'report' => [
+            'label' => 'Email report',
+            'description' => 'Get this view by email on a schedule. Only you receive it.',
+            'notification' => 'Email report saved',
+        ],
         'export' => [
             'label' => 'Export views',
         ],
@@ -47,6 +54,7 @@ return [
         'day' => 'Day',
         'time' => 'Time',
         'format' => 'Format',
+        'skip_empty' => 'Don\'t send when there are no records',
     ],
     'colors' => [
         'primary' => 'Primary',
@@ -61,7 +69,11 @@ return [
         'shared' => 'Shared',
         'modified' => 'Modified',
     ],
-    'frequencies' => ['daily' => 'Daily', 'weekly' => 'Weekly', 'monthly' => 'Monthly'],
+    'frequencies' => [
+        'daily' => 'Daily',
+        'weekly' => 'Weekly',
+        'monthly' => 'Monthly',
+    ],
     'tabs' => [
         'all' => 'All',
     ],

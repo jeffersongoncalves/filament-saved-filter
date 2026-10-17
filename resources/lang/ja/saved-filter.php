@@ -26,6 +26,7 @@ return [
         'day' => '日',
         'time' => '時刻',
         'format' => '形式',
+        'skip_empty' => 'レコードがない場合は送信しない',
     ],
     'colors' => ['primary' => 'プライマリ', 'gray' => 'グレー', 'info' => '情報', 'success' => '成功', 'warning' => '警告', 'danger' => '危険'],
     'badges' => ['preset' => 'プリセット', 'shared' => '共有', 'modified' => '変更あり'],
