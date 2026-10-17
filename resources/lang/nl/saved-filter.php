@@ -6,7 +6,7 @@ return [
         'save' => ['label' => 'Huidige weergave opslaan', 'notification' => 'Weergave opgeslagen'],
         'update' => ['label' => '":name" bijwerken met de huidige weergave', 'notification' => 'Weergave bijgewerkt'],
         'reset' => ['label' => 'Weergave wissen'],
-        'manage' => ['label' => 'Weergaven beheren', 'notification' => 'Weergaven bijgewerkt'],
+        'manage' => ['label' => 'Weergaven beheren', 'description' => 'Hernoem, herschik, kies de standaardweergave of verwijder weergaven die je niet meer gebruikt.', 'submit' => 'Wijzigingen opslaan', 'notification' => 'Weergaven bijgewerkt'],
         'export' => ['label' => 'Weergaven exporteren'],
         'import' => ['label' => 'Weergaven importeren', 'notification' => 'Weergaven geïmporteerd: :count', 'invalid' => 'Het bestand is geen geldige export van weergaven.'],
     ],

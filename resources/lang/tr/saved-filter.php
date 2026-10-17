@@ -6,7 +6,7 @@ return [
         'save' => ['label' => 'Geçerli görünümü kaydet', 'notification' => 'Görünüm kaydedildi'],
         'update' => ['label' => '":name" görünümünü geçerli görünümle güncelle', 'notification' => 'Görünüm güncellendi'],
         'reset' => ['label' => 'Görünümü temizle'],
-        'manage' => ['label' => 'Görünümleri yönet', 'notification' => 'Görünümler güncellendi'],
+        'manage' => ['label' => 'Görünümleri yönet', 'description' => 'Artık kullanmadığınız görünümleri yeniden adlandırın, sıralayın, varsayılanı belirleyin veya silin.', 'submit' => 'Değişiklikleri kaydet', 'notification' => 'Görünümler güncellendi'],
         'export' => ['label' => 'Görünümleri dışa aktar'],
         'import' => ['label' => 'Görünümleri içe aktar', 'notification' => 'İçe aktarılan görünümler: :count', 'invalid' => 'Dosya geçerli bir görünüm dışa aktarımı değil.'],
     ],

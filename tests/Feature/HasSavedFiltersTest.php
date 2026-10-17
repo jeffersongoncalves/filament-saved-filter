@@ -197,6 +197,14 @@ it('renames, reorders and deletes from the manage slide-over', function () {
         ->and($preset->refresh()->name)->toBe('Company preset');
 });
 
+it('explains the manage slide-over and labels its submit button', function () {
+    savedFilter();
+
+    Livewire::test(ListPosts::class)
+        ->assertTableActionExists('manageSavedFilters', fn ($action) => $action->getModalDescription() === 'Rename, reorder, set the default or delete the views you no longer use.'
+            && $action->getModalSubmitActionLabel() === 'Save changes');
+});
+
 it('lets preset managers save locked presets', function () {
     SavedFilterPlugin::current()->canManagePresets();
 

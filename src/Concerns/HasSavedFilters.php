@@ -385,6 +385,8 @@ trait HasSavedFilters
         return Action::make('manageSavedFilters')
             ->label(__('filament-saved-filter::saved-filter.actions.manage.label'))
             ->modalHeading(__('filament-saved-filter::saved-filter.actions.manage.label'))
+            ->modalDescription(__('filament-saved-filter::saved-filter.actions.manage.description'))
+            ->modalSubmitActionLabel(__('filament-saved-filter::saved-filter.actions.manage.submit'))
             ->icon('heroicon-o-adjustments-horizontal')
             ->slideOver()
             ->visible(fn () => $this->getEditableSavedFilters()->isNotEmpty())

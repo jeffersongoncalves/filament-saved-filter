@@ -6,7 +6,7 @@ return [
         'save' => ['label' => 'Guardar vista actual', 'notification' => 'Vista guardada'],
         'update' => ['label' => 'Actualizar ":name" con la vista actual', 'notification' => 'Vista actualizada'],
         'reset' => ['label' => 'Limpiar vista'],
-        'manage' => ['label' => 'Gestionar vistas', 'notification' => 'Vistas actualizadas'],
+        'manage' => ['label' => 'Gestionar vistas', 'description' => 'Cambia el nombre, reordena, define la predeterminada o elimina las vistas que ya no usas.', 'submit' => 'Guardar cambios', 'notification' => 'Vistas actualizadas'],
         'export' => ['label' => 'Exportar vistas'],
         'import' => ['label' => 'Importar vistas', 'notification' => 'Vistas importadas: :count', 'invalid' => 'El archivo no es una exportación de vistas válida.'],
     ],
