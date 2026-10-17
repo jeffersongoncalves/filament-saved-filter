@@ -23,12 +23,12 @@
     ],
     "require": {
         "php": "^8.2",
-        "filament/filament": "^4.0",
+        "filament/filament": "^5.0",
         "spatie/laravel-package-tools": "^1.16",
         "jeffersongoncalves/laravel-saved-filter": "^1.0"
     },
     "require-dev": {
-        "orchestra/testbench": "^9.0|^10.0",
+        "orchestra/testbench": "^10.0|^11.0",
         "pestphp/pest": "^3.0|^4.0",
         "larastan/larastan": "^2.0|^3.0",
         "laravel/pint": "^1.0"

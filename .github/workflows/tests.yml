@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [2.x]
+    branches: [3.x]
   pull_request:
-    branches: [2.x]
+    branches: [3.x]
 
 jobs:
   test:
@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         php: [8.4]
-        laravel: ['12.*']
+        laravel: ['13.*']
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
