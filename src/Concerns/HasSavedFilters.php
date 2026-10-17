@@ -110,7 +110,13 @@ trait HasSavedFilters
 
     public function updatedActiveTab(): void
     {
+        // Filament drops this cache here, after boot already reordered the table's columns, so it would be rebuilt
+        // from the reordered table: keep the table's own order to restore views from.
+        $defaultColumns = $this->getDefaultTableColumnState();
+
         parent::updatedActiveTab();
+
+        $this->cachedDefaultTableColumnState = $defaultColumns;
 
         $id = str_starts_with((string) $this->activeTab, 'saved-') ? (int) substr((string) $this->activeTab, 6) : null;
 
@@ -344,7 +350,7 @@ trait HasSavedFilters
                 return $item;
             };
 
-            $this->applyTableColumnManager(array_map(function (array $item) use ($toggle): array {
+            $columns = array_map(function (array $item) use ($toggle): array {
                 if ($item['type'] === 'group' && isset($item['columns'])) {
                     $item['columns'] = array_map($toggle, $item['columns']);
 
@@ -352,12 +358,42 @@ trait HasSavedFilters
                 }
 
                 return $toggle($item);
-            }, $this->getDefaultTableColumnState()));
+            }, $this->getDefaultTableColumnState());
+
+            $order = $table->hasReorderableColumns() ? array_values(array_filter((array) ($state['column_order'] ?? []), 'is_string')) : [];
+
+            // On a reorderable table always take Filament's reorder path: it also puts the Table's columns back in
+            // the default order, which the static path leaves as the previous view had them.
+            $this->applyTableColumnManager($order ? $this->orderSavedFilterColumns($columns, array_flip($order)) : $columns, wasReordered: $table->hasReorderableColumns());
         }
     }
 
     /**
-     * @return array{filters: array<string, mixed>, sort_column: ?string, sort_direction: ?string, search: ?string, column_searches: ?array<string, mixed>, toggled_columns: array<string, bool>, records_per_page: ?string, grouping: ?string, grouping_direction: ?string}
+     * Sort the column manager items (and the columns inside groups) by their saved position, keyed like Filament's
+     * flattenTableColumnStateItems(): "column:title", "group:Details", "group:Details:author.name". Columns the
+     * view doesn't know (added later) keep their default place after the known ones.
+     *
+     * @param  array<int, array<string, mixed>>  $items
+     * @param  array<string, int>  $position
+     * @return array<int, array<string, mixed>>
+     */
+    protected function orderSavedFilterColumns(array $items, array $position, string $prefix = ''): array
+    {
+        return collect($items)
+            ->map(function (array $item) use ($position): array {
+                if ($item['type'] === 'group' && isset($item['columns'])) {
+                    $item['columns'] = $this->orderSavedFilterColumns($item['columns'], $position, "group:{$item['name']}:");
+                }
+
+                return $item;
+            })
+            ->sortBy(fn (array $item): int => $position[$prefix === '' ? "{$item['type']}:{$item['name']}" : $prefix.$item['name']] ?? PHP_INT_MAX)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array{filters: array<string, mixed>, sort_column: ?string, sort_direction: ?string, search: ?string, column_searches: ?array<string, mixed>, toggled_columns: array<string, bool>, column_order: ?array<int, string>, records_per_page: ?string, grouping: ?string, grouping_direction: ?string}
      */
     protected function getCurrentSavedFilterState(): array
     {
@@ -378,6 +414,10 @@ trait HasSavedFilters
             'search' => filled($this->tableSearch) ? (string) $this->tableSearch : null,
             'column_searches' => $this->getSavedFilterColumnSearches(),
             'toggled_columns' => $toggled,
+            // Only a reordered table has an order of its own: null keeps following the table's definition.
+            'column_order' => $this->getTable()->hasReorderableColumns() && $this->hasReorderedTableColumns()
+                ? $this->flattenTableColumnStateItems($this->tableColumns)
+                : null,
             'records_per_page' => $this->getTable()->isPaginated() && filled($this->tableRecordsPerPage) ? (string) $this->tableRecordsPerPage : null,
             'grouping' => filled($this->tableGrouping) ? (string) str($this->tableGrouping)->before(':') : null,
             'grouping_direction' => $this->getTableGroupingDirection(),
@@ -837,7 +877,7 @@ trait HasSavedFilters
         }
 
         foreach ($row as $key => $value) {
-            $valid = in_array($key, ['filters', 'column_searches', 'toggled_columns'], true)
+            $valid = in_array($key, ['filters', 'column_searches', 'toggled_columns', 'column_order'], true)
                 ? $value === null || is_array($value)
                 : $value === null || is_scalar($value);
 
