@@ -11,8 +11,6 @@ class SavedFilterServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('filament-saved-filter')
-            ->hasConfigFile()
-            ->hasViews()
-            ->hasMigrations();
+            ->hasTranslations();
     }
 }
