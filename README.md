@@ -30,7 +30,9 @@ Built on [jeffersongoncalves/laravel-saved-filter](https://github.com/jeffersong
 - **Update view** — overwrite the active filter with the current table state.
 - **Modified badge + revert** — once the table drifts from the active view, the "Views" button shows *Modified* and **Revert changes** restores the saved state.
 - **Email reports** (opt-in) — "Email this view" sends the records as CSV/XLSX now; each user can schedule the report of any view they see (daily, weekly or monthly), for themselves only.
-- **Export / import** (opt-in) — download the views as JSON and upload them in another environment (files up to 1 MB; rows with malformed fields are skipped, a view with the same name is overwritten).
+- **Export / import** (opt-in) — download the views as JSON and upload them in another environment (files up to 1 MB; rows with malformed fields are skipped; a view with the same name is overwritten, skipped or imported as "Name (2)", your choice).
+- **Shareable links** — the active view is in the URL (`?view=4`), so a link opens it, in the dropdown mode too.
+- **Any table page** — list pages, `ManageRelatedRecords` and custom pages with `InteractsWithTable`.
 - **Safe restores** — filters, columns and sort columns that no longer exist in the table are skipped, no exceptions.
 - **Multi-tenancy** — scoped to the Filament tenant; database-per-tenant setups work as is.
 - **Events** for auditing, **19 languages**, Filament 3, 4 and 5.
@@ -129,9 +131,28 @@ public function table(Table $table): Table
 }
 ```
 
+### Other table pages
+
+The trait works on `ManageRelatedRecords` pages (tabs included) and on any page with `InteractsWithTable`. Such pages define their own `table()`, so call `configureSavedFilters()` there:
+
+```php
+class SalesReport extends Page implements HasTable
+{
+    use HasSavedFilters;
+    use InteractsWithTable;
+
+    public function table(Table $table): Table
+    {
+        return $this->configureSavedFilters($table->query(Order::query())->columns([...])->filters([...]));
+    }
+}
+```
+
+Pages without tabs list the views in the "Views" menu. Email reports stay on list pages: they rebuild the page outside a request, which needs nothing but its class.
+
 ### Table key
 
-Filters are stored per resource class. Override `getSavedFilterResource()` to share them between pages or to key them differently:
+Filters are stored per resource class on list pages and per page class anywhere else. Override `getSavedFilterResource()` to share them between pages or to key them differently:
 
 ```php
 public function getSavedFilterResource(): string
@@ -154,13 +175,15 @@ public function getSavedFilterExporter(): ?string
 ```
 
 - **Email this view** sends the current table state (saved or not) to the user, as CSV or XLSX.
-- **Email report** (in the "Views" menu, opens on the active view or lets you pick one): each user turns a report on or off for themselves, on their own views, shared ones and presets, and picks daily, weekly or monthly, the day, the time (app timezone) and the format. It goes only to that user.
+- **Email report** (in the "Views" menu, opens on the active view or lets you pick one): each user turns a report on or off for themselves, on their own views, shared ones and presets, and picks daily, weekly or monthly, the day, the time, the timezone (their own `timezone` attribute by default, else the app's) and the format. The form tells what is scheduled for the picked view. It goes only to that user.
+- **My email reports** lists the user's reports on every table of the tenant, to turn them on or off or remove them in one place.
+- The email has an **Open the view** button (`?tab=saved-4` with tabs, `?view=4` with the dropdown).
 - The file uses the exporter's columns enabled by default and its formatting, on the records of the view as that user sees them: the report is built with their login and tenant, and nothing is sent when they lost access to the resource or the tenant, or when the view is no longer shared with them.
 - "Don't send when there are no records" skips the occurrences where the view is empty.
 - Text that a spreadsheet would run as a formula (starting with `=`, `+`, `-` or `@`) is prefixed with `'`.
 - The users need an `email` attribute and the app needs a working mailer and queue.
 
-Scheduling and delivery come from [laravel-saved-filter](https://github.com/jeffersongoncalves/laravel-saved-filter): `saved-filter:send-reports` is registered on the scheduler every 15 minutes, so the server only needs `php artisan schedule:run` in cron. Reports are mailed as attachments: keep them to views whose size your mail provider accepts.
+Scheduling and delivery come from [laravel-saved-filter](https://github.com/jeffersongoncalves/laravel-saved-filter): `saved-filter:send-reports` is registered on the scheduler every 15 minutes, so the server only needs `php artisan schedule:run` in cron. Files over `reports_max_attachment_size` (10 MB) aren't attached: install [laravel-report-url](https://github.com/jeffersongoncalves/laravel-report-url) to send them as temporary download links.
 
 ## Presets
 
@@ -197,9 +220,9 @@ Missing your language? Copy `resources/lang/en/saved-filter.php` and open a pull
 
 ## Roadmap
 
-- Save the column order (Filament 4/5 reorderable columns).
-- Saved filters for relation managers and custom table pages.
+- Saved filters inside relation managers on edit/view pages.
 - Per-view badge with the record count.
+- One-click unsubscribe link in the report email.
 
 ## Requirements
 
