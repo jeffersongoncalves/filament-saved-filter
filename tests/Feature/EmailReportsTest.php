@@ -163,6 +163,19 @@ it('schedules from the All tab by picking the view, loading its settings', funct
         ->and($published->reports()->sole()->frequency)->toBe('monthly');
 });
 
+it('shows what is scheduled for the picked view', function () {
+    subscribe($this->ana, $this->drafts, ['frequency' => 'daily', 'time' => '07:30']);
+
+    $describe = fn (?int $id) => (fn () => $this->describeSavedFilterReport($id))->call(Livewire::test(ListPosts::class)->instance());
+
+    expect($describe($this->drafts->id))->toBe('Sent every day at 07:30.')
+        ->and($describe(null))->toBeNull();
+
+    $this->drafts->reports()->update(['is_active' => false]);
+
+    expect($describe($this->drafts->id))->toBeNull();
+});
+
 it('refuses to schedule a view the user does not see', function () {
     $private = SavedFilter::query()->create([
         'owner_type' => $this->bob->getMorphClass(),

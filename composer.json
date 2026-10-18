@@ -24,7 +24,7 @@
     "require": {
         "php": "^8.2",
         "filament/filament": "^3.3",
-        "jeffersongoncalves/laravel-saved-filter": "^1.8",
+        "jeffersongoncalves/laravel-saved-filter": "^1.9.1",
         "league/csv": "^9.27",
         "spatie/laravel-package-tools": "^1.16"
     },

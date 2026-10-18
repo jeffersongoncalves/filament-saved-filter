@@ -690,6 +690,7 @@ trait HasSavedFilters
                     ->selectablePlaceholder(false)
                     ->required()
                     ->live()
+                    ->helperText(fn ($get): ?string => $this->describeSavedFilterReport(filled($get('saved_filter_id')) ? (int) $get('saved_filter_id') : null))
                     ->afterStateUpdated(function ($state, $set) use ($settings): void {
                         foreach ($settings(filled($state) ? (int) $state : null) as $field => $value) {
                             $set($field, $value);
@@ -742,6 +743,16 @@ trait HasSavedFilters
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.report.notification'))->send();
             });
+    }
+
+    /** What this user has scheduled for a view right now, e.g. "Sent every Monday at 08:00."; null when nothing is on. */
+    protected function describeSavedFilterReport(?int $id): ?string
+    {
+        $owner = $this->getSavedFilterOwner();
+
+        return $id && $owner
+            ? $this->findSavedFilter($id)?->reports()->forUser($owner)->active()->first()?->describeSchedule()
+            : null;
     }
 
     protected function getSavedFilterReportFormatField(): Select
