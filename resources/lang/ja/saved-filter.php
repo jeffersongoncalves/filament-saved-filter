@@ -27,6 +27,7 @@ return [
         'frequency' => '頻度',
         'day' => '日',
         'time' => '時刻',
+        'timezone' => 'タイムゾーン',
         'format' => '形式',
         'skip_empty' => 'レコードがない場合は送信しない',
         'on_conflict' => '同じ名前のビューがある場合',

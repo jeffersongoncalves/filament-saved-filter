@@ -59,6 +59,7 @@ return [
         'frequency' => 'Frequency',
         'day' => 'Day',
         'time' => 'Time',
+        'timezone' => 'Timezone',
         'format' => 'Format',
         'skip_empty' => 'Don\'t send when there are no records',
         'on_conflict' => 'When a view has the same name',
