@@ -27,6 +27,7 @@ return [
         'frequency' => 'Sıklık',
         'day' => 'Gün',
         'time' => 'Saat',
+        'timezone' => 'Saat dilimi',
         'format' => 'Biçim',
         'skip_empty' => 'Kayıt yoksa gönderme',
         'on_conflict' => 'Aynı adlı bir görünüm varsa',

@@ -27,6 +27,7 @@ return [
         'frequency' => 'Fréquence',
         'day' => 'Jour',
         'time' => 'Heure',
+        'timezone' => 'Fuseau horaire',
         'format' => 'Format',
         'skip_empty' => 'Ne pas envoyer s\'il n\'y a aucun enregistrement',
         'on_conflict' => 'Si une vue porte le même nom',

@@ -27,6 +27,7 @@ return [
         'frequency' => 'Frequenza',
         'day' => 'Giorno',
         'time' => 'Ora',
+        'timezone' => 'Fuso orario',
         'format' => 'Formato',
         'skip_empty' => 'Non inviare se non ci sono record',
         'on_conflict' => 'Se una vista ha lo stesso nome',

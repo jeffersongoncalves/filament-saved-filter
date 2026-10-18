@@ -27,6 +27,7 @@ return [
         'frequency' => 'Częstotliwość',
         'day' => 'Dzień',
         'time' => 'Godzina',
+        'timezone' => 'Strefa czasowa',
         'format' => 'Format',
         'skip_empty' => 'Nie wysyłaj, gdy nie ma rekordów',
         'on_conflict' => 'Gdy widok ma tę samą nazwę',

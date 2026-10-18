@@ -797,8 +797,8 @@ trait HasSavedFilters
             $existing = $id && $owner ? $this->findSavedFilter($id)?->reports()->forUser($owner)->first() : null;
 
             return $existing
-                ? [...$existing->only(['is_active', 'frequency', 'day', 'time', 'format']), 'skip_empty' => (bool) ($existing->context['skip_empty'] ?? false)]
-                : ['is_active' => true, 'frequency' => SavedFilterReport::WEEKLY, 'day' => 1, 'time' => '08:00', 'format' => 'csv', 'skip_empty' => false];
+                ? [...$existing->only(['is_active', 'frequency', 'day', 'time', 'format']), 'timezone' => $existing->timezone ?: config('app.timezone'), 'skip_empty' => (bool) ($existing->context['skip_empty'] ?? false)]
+                : ['is_active' => true, 'frequency' => SavedFilterReport::WEEKLY, 'day' => 1, 'time' => '08:00', 'timezone' => $this->getSavedFilterReportTimezone(), 'format' => 'csv', 'skip_empty' => false];
         };
 
         return Action::make('savedFilterReport')
@@ -847,6 +847,11 @@ trait HasSavedFilters
                     ->label(__('filament-saved-filter::saved-filter.fields.time'))
                     ->seconds(false)
                     ->required(),
+                Select::make('timezone')
+                    ->label(__('filament-saved-filter::saved-filter.fields.timezone'))
+                    ->options(fn (): array => array_combine(timezone_identifiers_list(), timezone_identifiers_list()))
+                    ->searchable()
+                    ->required(),
                 $this->getSavedFilterReportFormatField(),
                 Toggle::make('skip_empty')
                     ->label(__('filament-saved-filter::saved-filter.fields.skip_empty')),
@@ -868,6 +873,8 @@ trait HasSavedFilters
                     'frequency' => $data['frequency'],
                     'day' => $data['frequency'] === SavedFilterReport::DAILY ? null : (int) $data['day'],
                     'time' => substr((string) $data['time'], 0, 5),
+                    // null keeps following the app's zone.
+                    'timezone' => in_array($data['timezone'] ?? null, timezone_identifiers_list(), true) && $data['timezone'] !== config('app.timezone') ? $data['timezone'] : null,
                     'format' => $data['format'] === 'xlsx' ? 'xlsx' : 'csv',
                     'is_active' => (bool) ($data['is_active'] ?? false),
                 ]);
@@ -946,6 +953,14 @@ trait HasSavedFilters
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.my_reports.notification'))->send();
             });
+    }
+
+    /** A new schedule's zone: the user's own `timezone` attribute when it's a valid one, else the app's. */
+    protected function getSavedFilterReportTimezone(): string
+    {
+        $timezone = $this->getSavedFilterOwner()?->getAttribute('timezone');
+
+        return is_string($timezone) && in_array($timezone, timezone_identifiers_list(), true) ? $timezone : (string) config('app.timezone');
     }
 
     /** What this user has scheduled for a view right now, e.g. "Sent every Monday at 08:00."; null when nothing is on. */

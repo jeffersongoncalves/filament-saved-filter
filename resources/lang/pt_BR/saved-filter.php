@@ -59,6 +59,7 @@ return [
         'frequency' => 'Frequência',
         'day' => 'Dia',
         'time' => 'Horário',
+        'timezone' => 'Fuso horário',
         'format' => 'Formato',
         'skip_empty' => 'Não enviar se não houver registros',
         'on_conflict' => 'Quando uma visualização tem o mesmo nome',

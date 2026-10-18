@@ -27,6 +27,7 @@ return [
         'frequency' => 'Häufigkeit',
         'day' => 'Tag',
         'time' => 'Uhrzeit',
+        'timezone' => 'Zeitzone',
         'format' => 'Format',
         'skip_empty' => 'Nicht senden, wenn es keine Datensätze gibt',
         'on_conflict' => 'Wenn eine Ansicht gleich heißt',
