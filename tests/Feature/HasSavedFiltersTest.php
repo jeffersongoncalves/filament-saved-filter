@@ -419,6 +419,25 @@ describe('export and import', function () {
             ->isOwnedBy($this->user)->toBeTrue();
     });
 
+    it('overwrites, skips or copies views with the same name', function (string $strategy, array $names, string $status) {
+        savedFilter(['name' => 'Published']);
+        savedFilter(['name' => 'Published (2)']);
+        $json = json_encode(['saved_filters' => [
+            ['resource' => PostResource::class, 'name' => 'Published', 'filters' => ['status' => ['value' => 'draft']]],
+            ['resource' => PostResource::class, 'name' => 'New'],
+        ]]);
+
+        Livewire::test(ListPosts::class)
+            ->callTableAction('importSavedFilters', data: ['file' => UploadedFile::fake()->createWithContent('saved-filters.json', $json), 'on_conflict' => $strategy]);
+
+        expect(SavedFilter::query()->orderBy('id')->pluck('name')->all())->toBe($names)
+            ->and(SavedFilter::query()->where('name', 'Published')->sole()->filters['status']['value'])->toBe($status);
+    })->with([
+        'overwrite' => ['overwrite', ['Published', 'Published (2)', 'New'], 'draft'],
+        'skip' => ['skip', ['Published', 'Published (2)', 'New'], 'published'],
+        'copy' => ['copy', ['Published', 'Published (2)', 'Published (3)', 'New'], 'published'],
+    ]);
+
     it('skips imported rows the columns can\'t hold', function () {
         $json = json_encode(['saved_filters' => [
             ['resource' => PostResource::class, 'name' => str_repeat('x', 256)],

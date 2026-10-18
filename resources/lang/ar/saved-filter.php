@@ -29,9 +29,11 @@ return [
         'time' => 'الوقت',
         'format' => 'التنسيق',
         'skip_empty' => 'لا ترسل إذا لم تكن هناك سجلات',
+        'on_conflict' => 'عند وجود طريقة عرض بنفس الاسم',
     ],
     'colors' => ['primary' => 'أساسي', 'gray' => 'رمادي', 'info' => 'معلومات', 'success' => 'نجاح', 'warning' => 'تحذير', 'danger' => 'خطر'],
     'badges' => ['preset' => 'إعداد مسبق', 'shared' => 'مشتركة', 'modified' => 'معدّل'],
     'frequencies' => ['daily' => 'يوميًا', 'weekly' => 'أسبوعيًا', 'monthly' => 'شهريًا'],
+    'conflicts' => ['overwrite' => 'استبدالها', 'skip' => 'تخطّيها', 'copy' => 'استيرادها كنسخة'],
     'tabs' => ['all' => 'الكل'],
 ];

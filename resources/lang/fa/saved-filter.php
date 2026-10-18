@@ -29,9 +29,11 @@ return [
         'time' => 'ساعت',
         'format' => 'قالب',
         'skip_empty' => 'اگر رکوردی نبود ارسال نکن',
+        'on_conflict' => 'وقتی نمایی با همین نام هست',
     ],
     'colors' => ['primary' => 'اصلی', 'gray' => 'خاکستری', 'info' => 'اطلاعات', 'success' => 'موفقیت', 'warning' => 'هشدار', 'danger' => 'خطر'],
     'badges' => ['preset' => 'پیش‌تنظیم', 'shared' => 'اشتراکی', 'modified' => 'تغییر یافته'],
     'frequencies' => ['daily' => 'روزانه', 'weekly' => 'هفتگی', 'monthly' => 'ماهانه'],
+    'conflicts' => ['overwrite' => 'جایگزین شود', 'skip' => 'رد شود', 'copy' => 'به‌صورت کپی وارد شود'],
     'tabs' => ['all' => 'همه'],
 ];

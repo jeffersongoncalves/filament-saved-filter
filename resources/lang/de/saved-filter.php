@@ -29,9 +29,11 @@ return [
         'time' => 'Uhrzeit',
         'format' => 'Format',
         'skip_empty' => 'Nicht senden, wenn es keine Datensätze gibt',
+        'on_conflict' => 'Wenn eine Ansicht gleich heißt',
     ],
     'colors' => ['primary' => 'Primär', 'gray' => 'Grau', 'info' => 'Info', 'success' => 'Erfolg', 'warning' => 'Warnung', 'danger' => 'Gefahr'],
     'badges' => ['preset' => 'Vorlage', 'shared' => 'Geteilt', 'modified' => 'Geändert'],
     'frequencies' => ['daily' => 'Täglich', 'weekly' => 'Wöchentlich', 'monthly' => 'Monatlich'],
+    'conflicts' => ['overwrite' => 'Überschreiben', 'skip' => 'Überspringen', 'copy' => 'Als Kopie importieren'],
     'tabs' => ['all' => 'Alle'],
 ];
