@@ -233,6 +233,18 @@ it('links the email to the view, or to the page once the table drifted from it',
     Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification, array $channels, AnonymousNotifiable $notifiable) => $notification->url === ListPosts::getUrl(panel: 'test'));
 });
 
+it('links to ?view= in the dropdown mode', function () {
+    SavedFilterPlugin::current()->dropdown();
+
+    Livewire::test(ListPosts::class)
+        ->callTableAction("applySavedFilter{$this->drafts->id}")
+        ->callTableAction('emailSavedFilter', data: ['format' => 'csv']);
+
+    Notification::assertSentOnDemand(SavedFilterReportNotification::class, fn (SavedFilterReportNotification $notification) => $notification->url === ListPosts::getUrl(['view' => $this->drafts->id], panel: 'test'));
+
+    SavedFilterPlugin::current()->tabs();
+});
+
 it('tells when a scheduled report goes out and links to its view', function () {
     $this->travelTo(now()->setTime(7, 0));
     subscribe($this->bob, $this->drafts);

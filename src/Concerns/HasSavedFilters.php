@@ -26,6 +26,7 @@ use JeffersonGoncalves\SavedFilter\Events\SavedFilterApplied;
 use JeffersonGoncalves\SavedFilter\Jobs\SendSavedFilterReport;
 use JeffersonGoncalves\SavedFilter\Models\SavedFilter;
 use JeffersonGoncalves\SavedFilter\Models\SavedFilterReport;
+use Livewire\Attributes\Url;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Throwable;
 
@@ -34,6 +35,8 @@ use Throwable;
  */
 trait HasSavedFilters
 {
+    /** In the URL as ?view=, so a shared link opens the view in the dropdown mode too. */
+    #[Url(as: 'view')]
     public ?int $activeSavedFilter = null;
 
     /** Hash of the table state right after the active filter was applied or saved: tells when it was changed. */
@@ -89,11 +92,19 @@ trait HasSavedFilters
 
     protected function loadDefaultActiveTab(): void
     {
-        $hasUrlState = filled($this->activeTab) || filled($this->tableFilters) || filled($this->tableSearch) || filled($this->tableSort);
+        $hasTableState = filled($this->tableFilters) || filled($this->tableSearch) || filled($this->tableSort);
+        $tabs = SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS;
 
-        if (! $hasUrlState && ($default = $this->getDefaultSavedFilter())) {
+        if ($this->activeSavedFilter !== null && blank($this->activeTab)) {
+            // ?view= from a shared link: a view this user doesn't see is dropped; next to a table state from the
+            // same link the view only stays marked (shown as Modified), otherwise it's applied.
+            $view = $this->findSavedFilter($this->activeSavedFilter);
+            $this->activeSavedFilter = $view?->getKey();
+            $this->pendingSavedFilter = $view && ! $hasTableState ? $view->getKey() : null;
+            $this->activeTab = $view && $tabs ? "saved-{$view->getKey()}" : null;
+        } elseif (blank($this->activeTab) && ! $hasTableState && ($default = $this->getDefaultSavedFilter())) {
             $this->pendingSavedFilter = $default->getKey();
-            $this->activeTab = SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS ? "saved-{$default->getKey()}" : null;
+            $this->activeTab = $tabs ? "saved-{$default->getKey()}" : null;
         }
 
         parent::loadDefaultActiveTab();
