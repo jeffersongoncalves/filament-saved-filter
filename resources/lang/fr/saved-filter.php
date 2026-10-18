@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Gérer les vues', 'description' => 'Renommez, réorganisez, choisissez la vue par défaut ou supprimez les vues que vous n’utilisez plus.', 'submit' => 'Enregistrer les modifications', 'notification' => 'Vues mises à jour'],
         'email' => ['label' => 'Envoyer la vue par e-mail', 'notification' => 'Le rapport est en route vers votre boîte de réception.'],
         'report' => ['label' => 'Rapport par e-mail', 'description' => 'Recevez cette vue par e-mail selon un calendrier. Vous seul la recevez.', 'notification' => 'Rapport par e-mail enregistré'],
+        'my_reports' => ['label' => 'Mes rapports par e-mail', 'description' => 'Activez, désactivez ou supprimez les rapports que vous recevez par e-mail, de toutes les tables.', 'notification' => 'Rapports mis à jour'],
         'export' => ['label' => 'Exporter les vues'],
         'import' => ['label' => 'Importer des vues', 'notification' => 'Vues importées : :count', 'invalid' => 'Le fichier n’est pas un export de vues valide.'],
     ],

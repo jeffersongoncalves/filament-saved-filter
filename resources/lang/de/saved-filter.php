@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Ansichten verwalten', 'description' => 'Benennen Sie Ansichten um, ordnen Sie sie neu, legen Sie die Standardansicht fest oder löschen Sie nicht mehr benötigte.', 'submit' => 'Änderungen speichern', 'notification' => 'Ansichten aktualisiert'],
         'email' => ['label' => 'Ansicht per E-Mail senden', 'notification' => 'Der Bericht ist unterwegs in dein Postfach.'],
         'report' => ['label' => 'E-Mail-Bericht', 'description' => 'Erhalte diese Ansicht regelmäßig per E-Mail. Nur du bekommst sie.', 'notification' => 'E-Mail-Bericht gespeichert'],
+        'my_reports' => ['label' => 'Meine E-Mail-Berichte', 'description' => 'Schalte die Berichte, die du per E-Mail erhältst, aus allen Tabellen ein, aus oder entferne sie.', 'notification' => 'Berichte aktualisiert'],
         'export' => ['label' => 'Ansichten exportieren'],
         'import' => ['label' => 'Ansichten importieren', 'notification' => 'Importierte Ansichten: :count', 'invalid' => 'Die Datei ist kein gültiger Ansichten-Export.'],
     ],

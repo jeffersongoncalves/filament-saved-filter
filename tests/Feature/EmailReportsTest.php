@@ -176,6 +176,35 @@ it('shows what is scheduled for the picked view', function () {
     expect($describe($this->drafts->id))->toBeNull();
 });
 
+it('turns reports off and drops them from My email reports, only the user\'s own', function () {
+    $other = SavedFilter::query()->create([
+        'owner_type' => $this->ana->getMorphClass(),
+        'owner_id' => $this->ana->getKey(),
+        'resource' => PostResource::class,
+        'name' => 'Published',
+        'filters' => ['status' => ['value' => 'published']],
+    ]);
+    subscribe($this->bob, $this->drafts);
+    subscribe($this->ana, $this->drafts);
+    subscribe($this->ana, $other);
+    $bobs = SavedFilterReport::query()->forUser($this->bob)->sole();
+    [$drafts, $published] = SavedFilterReport::query()->forUser($this->ana)->orderBy('id')->get()->all();
+
+    Livewire::test(ListPosts::class)
+        ->assertTableActionVisible('manageSavedFilterReports')
+        ->mountTableAction('manageSavedFilterReports')
+        ->setTableActionData(['reports' => [
+            ['id' => $drafts->id, 'label' => 'x', 'is_active' => false],
+            ['id' => $bobs->id, 'label' => 'x', 'is_active' => false],
+        ]])
+        ->callMountedTableAction()
+        ->assertHasNoTableActionErrors();
+
+    expect($drafts->refresh()->is_active)->toBeFalse()
+        ->and(SavedFilterReport::query()->find($published->id))->toBeNull()
+        ->and($bobs->refresh()->is_active)->toBeTrue();
+});
+
 it('refuses to schedule a view the user does not see', function () {
     $private = SavedFilter::query()->create([
         'owner_type' => $this->bob->getMorphClass(),

@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Görünüşləri idarə et', 'description' => 'Artıq istifadə etmədiyiniz görünüşlərin adını dəyişin, sıralayın, standartı seçin və ya silin.', 'submit' => 'Dəyişiklikləri yadda saxla', 'notification' => 'Görünüşlər yeniləndi'],
         'email' => ['label' => 'Görünüşü e-poçtla göndər', 'notification' => 'Hesabat e-poçtunuza göndərilir.'],
         'report' => ['label' => 'E-poçt hesabatı', 'description' => 'Bu görünüşü cədvəl üzrə e-poçtla alın. Yalnız siz alırsınız.', 'notification' => 'E-poçt hesabatı saxlanıldı'],
+        'my_reports' => ['label' => 'E-poçt hesabatlarım', 'description' => 'Bütün cədvəllərdən e-poçtla aldığınız hesabatları açın, söndürün və ya silin.', 'notification' => 'Hesabatlar yeniləndi'],
         'export' => ['label' => 'Görünüşləri ixrac et'],
         'import' => ['label' => 'Görünüşləri idxal et', 'notification' => 'İdxal edilən görünüşlər: :count', 'invalid' => 'Fayl etibarlı görünüş ixracı deyil.'],
     ],

@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Koʻrinishlarni boshqarish', 'description' => 'Endi foydalanmaydigan koʻrinishlarni qayta nomlang, tartiblang, standartini tanlang yoki oʻchiring.', 'submit' => 'Oʻzgarishlarni saqlash', 'notification' => 'Koʻrinishlar yangilandi'],
         'email' => ['label' => 'Ko\'rinishni e-pochtaga yuborish', 'notification' => 'Hisobot pochtangizga yuborilmoqda.'],
         'report' => ['label' => 'E-pochta hisoboti', 'description' => 'Bu ko\'rinishni jadval bo\'yicha e-pochtada oling. Faqat siz olasiz.', 'notification' => 'E-pochta hisoboti saqlandi'],
+        'my_reports' => ['label' => 'E-pochta hisobotlarim', 'description' => 'Barcha jadvallardan e-pochtada oladigan hisobotlarni yoqing, o\'chiring yoki olib tashlang.', 'notification' => 'Hisobotlar yangilandi'],
         'export' => ['label' => 'Koʻrinishlarni eksport qilish'],
         'import' => ['label' => 'Koʻrinishlarni import qilish', 'notification' => 'Import qilingan koʻrinishlar: :count', 'invalid' => 'Fayl yaroqli koʻrinishlar eksporti emas.'],
     ],

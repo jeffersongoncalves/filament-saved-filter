@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Zarządzaj widokami', 'description' => 'Zmieniaj nazwy, kolejność, ustaw widok domyślny lub usuń widoki, których już nie używasz.', 'submit' => 'Zapisz zmiany', 'notification' => 'Widoki zaktualizowane'],
         'email' => ['label' => 'Wyślij widok e-mailem', 'notification' => 'Raport jest w drodze do Twojej skrzynki.'],
         'report' => ['label' => 'Raport e-mail', 'description' => 'Otrzymuj ten widok e-mailem według harmonogramu. Tylko Ty go dostajesz.', 'notification' => 'Raport e-mail zapisany'],
+        'my_reports' => ['label' => 'Moje raporty e-mail', 'description' => 'Włącz, wyłącz lub usuń raporty, które dostajesz e-mailem, ze wszystkich tabel.', 'notification' => 'Raporty zaktualizowane'],
         'export' => ['label' => 'Eksportuj widoki'],
         'import' => ['label' => 'Importuj widoki', 'notification' => 'Zaimportowane widoki: :count', 'invalid' => 'Plik nie jest prawidłowym eksportem widoków.'],
     ],
