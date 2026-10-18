@@ -14,6 +14,8 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Resources\Components\Tab;
+use Filament\Resources\Concerns\HasTabs;
+use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Table;
@@ -31,7 +33,8 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Throwable;
 
 /**
- * Save, share and restore the table state (filters, sort, search, toggled columns) of a ListRecords page.
+ * Save, share and restore the table state (filters, sort, search, columns…) of a Filament table page: ListRecords,
+ * ManageRelatedRecords, or any page with InteractsWithTable (views then show in the dropdown, no email reports).
  */
 trait HasSavedFilters
 {
@@ -74,7 +77,7 @@ trait HasSavedFilters
      */
     public function getSavedFilterTabs(): array
     {
-        if (SavedFilterPlugin::current()->getDisplayMode() !== SavedFilterPlugin::TABS || $this->getSavedFilters()->isEmpty()) {
+        if (! $this->usesSavedFilterTabs() || $this->getSavedFilters()->isEmpty()) {
             return [];
         }
 
@@ -90,29 +93,79 @@ trait HasSavedFilters
         return $tabs;
     }
 
+    /** Tabs need Filament's HasTabs (ListRecords, ManageRelatedRecords); other table pages list the views in the dropdown. */
+    protected function usesSavedFilterTabs(): bool
+    {
+        return SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS && $this->hasSavedFilterTabSupport();
+    }
+
+    protected function hasSavedFilterTabSupport(): bool
+    {
+        return in_array(HasTabs::class, class_uses_recursive($this), true);
+    }
+
     protected function loadDefaultActiveTab(): void
     {
-        $hasTableState = filled($this->tableFilters) || filled($this->tableSearch) || filled($this->tableSortColumn);
-        $tabs = SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS;
-
-        if ($this->activeSavedFilter !== null && blank($this->activeTab)) {
-            // ?view= from a shared link: a view this user doesn't see is dropped; next to a table state from the
-            // same link the view only stays marked (shown as Modified), otherwise it's applied.
-            $view = $this->findSavedFilter($this->activeSavedFilter);
-            $this->activeSavedFilter = $view?->getKey();
-            $this->pendingSavedFilter = $view && ! $hasTableState ? $view->getKey() : null;
-            $this->activeTab = $view && $tabs ? "saved-{$view->getKey()}" : null;
-        } elseif (blank($this->activeTab) && ! $hasTableState && ($default = $this->getDefaultSavedFilter())) {
-            $this->pendingSavedFilter = $default->getKey();
-            $this->activeTab = $tabs ? "saved-{$default->getKey()}" : null;
-        }
+        $this->resolveSavedFilterOnMount();
 
         parent::loadDefaultActiveTab();
     }
 
+    /** Pages without tabs have no loadDefaultActiveTab(): pick the view while mounting instead. */
+    public function mountHasSavedFilters(): void
+    {
+        if (! $this->hasSavedFilterTabSupport()) {
+            $this->resolveSavedFilterOnMount();
+        }
+    }
+
+    /** The view to open: ?view= from a shared link, otherwise the default one when the URL carries no table state. */
+    protected function resolveSavedFilterOnMount(): void
+    {
+        $hasTableState = filled($this->tableFilters) || filled($this->tableSearch) || filled($this->tableSortColumn);
+        $tabs = $this->usesSavedFilterTabs();
+        $activeTab = $this->hasSavedFilterTabSupport() ? $this->activeTab : null;
+
+        if ($this->activeSavedFilter !== null && blank($activeTab)) {
+            // A view this user doesn't see is dropped; next to a table state from the same link the view only
+            // stays marked (shown as Modified), otherwise it's applied.
+            $view = $this->findSavedFilter($this->activeSavedFilter);
+            $this->activeSavedFilter = $view?->getKey();
+            $this->pendingSavedFilter = $view && ! $hasTableState ? $view->getKey() : null;
+
+            if ($tabs) {
+                $this->activeTab = $view ? "saved-{$view->getKey()}" : null;
+            }
+        } elseif (blank($activeTab) && ! $hasTableState && ($default = $this->getDefaultSavedFilter())) {
+            $this->pendingSavedFilter = $default->getKey();
+
+            if ($tabs) {
+                $this->activeTab = "saved-{$default->getKey()}";
+            }
+        }
+    }
+
     public function bootedHasSavedFilters(): void
     {
-        if ($this->pendingSavedFilter && ($filter = $this->findSavedFilter($this->pendingSavedFilter))) {
+        $this->applyPendingSavedFilter();
+    }
+
+    /**
+     * On a page that uses this trait before InteractsWithTable (Pint's ordered_traits sorts them so), the table
+     * doesn't exist yet in bootedHasSavedFilters(): apply the view right before rendering instead.
+     */
+    public function renderingHasSavedFilters(): void
+    {
+        $this->applyPendingSavedFilter();
+    }
+
+    protected function applyPendingSavedFilter(): void
+    {
+        if (! $this->pendingSavedFilter || ! isset($this->table)) {
+            return;
+        }
+
+        if ($filter = $this->findSavedFilter($this->pendingSavedFilter)) {
             $this->applySavedFilter($filter);
         }
 
@@ -132,10 +185,13 @@ trait HasSavedFilters
         }
     }
 
-    /** The table key the filters are stored under. */
+    /**
+     * The table key the filters are stored under: the resource on its list page, the page class anywhere else
+     * (a ManageRelatedRecords page must not share the resource list's views).
+     */
     public function getSavedFilterResource(): string
     {
-        return static::getResource();
+        return $this instanceof ListRecords ? static::getResource() : static::class;
     }
 
     protected function getSavedFilterOwner(): ?Model
@@ -218,7 +274,7 @@ trait HasSavedFilters
 
     protected function switchSavedFilter(?SavedFilter $filter): void
     {
-        if (SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS) {
+        if ($this->usesSavedFilterTabs()) {
             $this->activeTab = $filter ? "saved-{$filter->getKey()}" : 'all';
             $this->updatedActiveTab();
 
@@ -263,6 +319,10 @@ trait HasSavedFilters
     protected function flushSavedFilters(): void
     {
         $this->cachedSavedFilters = null;
+
+        if (! $this->hasSavedFilterTabSupport()) {
+            return;
+        }
 
         // Same as getCachedTabs(), so a tab added or removed shows up in this render.
         $this->cachedTabs = $this->getTabs();
@@ -402,7 +462,7 @@ trait HasSavedFilters
     {
         $plugin = SavedFilterPlugin::current();
 
-        $apply = $plugin->getDisplayMode() === SavedFilterPlugin::DROPDOWN
+        $apply = ! $this->usesSavedFilterTabs()
             ? $this->getSavedFilters()->map(fn (SavedFilter $filter) => Action::make("applySavedFilter{$filter->getKey()}")
                 ->label($filter->name)
                 ->icon($this->activeSavedFilter === $filter->getKey() ? 'heroicon-m-check' : $this->getSavedFilterIcon($filter))
@@ -474,7 +534,7 @@ trait HasSavedFilters
                 $this->activeSavedFilter = $filter->getKey();
                 $this->takeSavedFilterSnapshot();
 
-                if ($plugin->getDisplayMode() === SavedFilterPlugin::TABS) {
+                if ($this->usesSavedFilterTabs()) {
                     $this->activeTab = "saved-{$filter->getKey()}";
                 }
 
@@ -526,7 +586,7 @@ trait HasSavedFilters
             ->action(function (): void {
                 $this->resetSavedFilterState();
 
-                if (str_starts_with((string) $this->activeTab, 'saved-')) {
+                if ($this->hasSavedFilterTabSupport() && str_starts_with((string) $this->activeTab, 'saved-')) {
                     $this->activeTab = 'all';
                 }
             });
@@ -588,7 +648,10 @@ trait HasSavedFilters
 
                 if ($this->activeSavedFilter && ! in_array($this->activeSavedFilter, $kept, true) && $editable->has($this->activeSavedFilter)) {
                     $this->activeSavedFilter = null;
-                    $this->activeTab = 'all';
+
+                    if ($this->hasSavedFilterTabSupport()) {
+                        $this->activeTab = 'all';
+                    }
                 }
 
                 $this->flushSavedFilters();
@@ -632,9 +695,10 @@ trait HasSavedFilters
         return ['panel' => Filament::getCurrentPanel()->getId(), 'page' => static::class, 'tenant' => Filament::getTenant()?->getKey()];
     }
 
+    /** Email reports rebuild the page outside a request: only list pages can be rebuilt from their class alone. */
     protected function hasSavedFilterReports(): bool
     {
-        return SavedFilterPlugin::current()->hasEmailReports() && filled($this->getSavedFilterExporter());
+        return $this instanceof ListRecords && SavedFilterPlugin::current()->hasEmailReports() && filled($this->getSavedFilterExporter());
     }
 
     protected function getEmailSavedFilterAction(): Action

@@ -62,6 +62,9 @@ class TestCase extends Orchestra
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('k', 32)));
         $app['config']->set('database.default', 'testing');
         $app['config']->set('database.connections.testing', $this->testing_connection());
+
+        // Filament 3 pages need a Blade view: the custom table page fixture's lives here.
+        $app['view']->addLocation(__DIR__.'/Fixtures/views');
     }
 
     /**
