@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Weergaven beheren', 'description' => 'Hernoem, herschik, kies de standaardweergave of verwijder weergaven die je niet meer gebruikt.', 'submit' => 'Wijzigingen opslaan', 'notification' => 'Weergaven bijgewerkt'],
         'email' => ['label' => 'Weergave e-mailen', 'notification' => 'Het rapport is onderweg naar je inbox.'],
         'report' => ['label' => 'E-mailrapport', 'description' => 'Ontvang deze weergave volgens een schema per e-mail. Alleen jij ontvangt hem.', 'notification' => 'E-mailrapport opgeslagen'],
+        'my_reports' => ['label' => 'Mijn e-mailrapporten', 'description' => 'Zet de rapporten die je per e-mail krijgt, uit alle tabellen, aan, uit of verwijder ze.', 'notification' => 'Rapporten bijgewerkt'],
         'export' => ['label' => 'Weergaven exporteren'],
         'import' => ['label' => 'Weergaven importeren', 'notification' => 'Weergaven geïmporteerd: :count', 'invalid' => 'Het bestand is geen geldige export van weergaven.'],
     ],
