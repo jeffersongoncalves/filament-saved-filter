@@ -151,6 +151,30 @@ it('applies saved filters from the dropdown', function () {
     SavedFilterPlugin::current()->tabs();
 });
 
+it('opens the view of a shared ?view= link in the dropdown mode', function () {
+    SavedFilterPlugin::current()->dropdown();
+    $filter = savedFilter();
+
+    Livewire::withQueryParams(['view' => $filter->id])->test(ListPosts::class)
+        ->assertSet('activeSavedFilter', $filter->id)
+        ->assertSet('tableFilters.status.value', 'published')
+        ->assertCanNotSeeTableRecords([$this->draft]);
+
+    Livewire::withQueryParams(['view' => $filter->id, 'filters' => ['status' => ['value' => 'draft']]])->test(ListPosts::class)
+        ->assertSet('activeSavedFilter', $filter->id)
+        ->assertSet('tableFilters.status.value', 'draft');
+
+    SavedFilterPlugin::current()->tabs();
+});
+
+it('drops a ?view= the user does not see', function () {
+    $private = savedFilter(['name' => 'Bob private'], User::query()->forceCreate(['name' => 'Bob']));
+
+    Livewire::withQueryParams(['view' => $private->id])->test(ListPosts::class)
+        ->assertSet('activeSavedFilter', null)
+        ->assertCanSeeTableRecords([$this->published, $this->draft]);
+});
+
 it('dispatches the applied event', function () {
     Event::fake([SavedFilterApplied::class]);
     $filter = savedFilter();

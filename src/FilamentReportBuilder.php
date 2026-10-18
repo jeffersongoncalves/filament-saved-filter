@@ -80,8 +80,8 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
     }
 
     /**
-     * The page in the report's panel and tenant, on the saved view's tab when the panel shows views as tabs (the
-     * dropdown keeps no view in the URL). Used for the email's "open the view" button.
+     * The page in the report's panel and tenant, opened on the saved view (?tab=saved-{id} with tabs, ?view={id}
+     * with the dropdown). Used for the email's "open the view" button.
      *
      * @param  class-string  $page
      * @param  array<string, mixed>  $context
@@ -89,9 +89,11 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
     protected function getUrl(string $page, array $context): ?string
     {
         $view = $context['saved_filter_id'] ?? null;
-        $parameters = filled($view) && SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS
-            ? ['tab' => "saved-{$view}"]
-            : [];
+        $parameters = match (true) {
+            blank($view) => [],
+            SavedFilterPlugin::current()->getDisplayMode() === SavedFilterPlugin::TABS => ['tab' => "saved-{$view}"],
+            default => ['view' => $view],
+        };
 
         try {
             return $page::getUrl($parameters, panel: Filament::getCurrentPanel()?->getId(), tenant: Filament::getTenant());
