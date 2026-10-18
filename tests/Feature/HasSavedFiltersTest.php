@@ -160,7 +160,7 @@ it('opens the view of a shared ?view= link in the dropdown mode', function () {
         ->assertSet('tableFilters.status.value', 'published')
         ->assertCanNotSeeTableRecords([$this->draft]);
 
-    Livewire::withQueryParams(['view' => $filter->id, 'filters' => ['status' => ['value' => 'draft']]])->test(ListPosts::class)
+    Livewire::withQueryParams(['view' => $filter->id, 'tableFilters' => ['status' => ['value' => 'draft']]])->test(ListPosts::class)
         ->assertSet('activeSavedFilter', $filter->id)
         ->assertSet('tableFilters.status.value', 'draft');
 

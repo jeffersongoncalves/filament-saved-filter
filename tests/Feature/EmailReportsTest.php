@@ -209,10 +209,11 @@ it('turns reports off and drops them from My email reports, only the user\'s own
     Livewire::test(ListPosts::class)
         ->assertTableActionVisible('manageSavedFilterReports')
         ->mountTableAction('manageSavedFilterReports')
-        ->setTableActionData(['reports' => [
+        // Filament 3's setTableActionData() merges repeater items: replace the list to drop one.
+        ->set('mountedTableActionsData.0.reports', [
             ['id' => $drafts->id, 'label' => 'x', 'is_active' => false],
             ['id' => $bobs->id, 'label' => 'x', 'is_active' => false],
-        ]])
+        ])
         ->callMountedTableAction()
         ->assertHasNoTableActionErrors();
 

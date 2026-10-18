@@ -870,7 +870,7 @@ trait HasSavedFilters
                     ->map(fn (SavedFilterReport $report) => ['id' => $report->getKey(), 'label' => $label($report), 'is_active' => $report->is_active])
                     ->all(),
             ])
-            ->schema([
+            ->form([
                 Repeater::make('reports')
                     ->hiddenLabel()
                     ->schema([
