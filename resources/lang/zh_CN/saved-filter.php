@@ -27,6 +27,7 @@ return [
         'frequency' => '频率',
         'day' => '日期',
         'time' => '时间',
+        'timezone' => '时区',
         'format' => '格式',
         'skip_empty' => '没有记录时不发送',
         'on_conflict' => '存在同名视图时',

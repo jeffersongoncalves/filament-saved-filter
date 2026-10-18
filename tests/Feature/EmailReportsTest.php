@@ -163,6 +163,22 @@ it('schedules from the All tab by picking the view, loading its settings', funct
         ->and($published->reports()->sole()->frequency)->toBe('monthly');
 });
 
+it('schedules in a timezone, the user\'s own by default', function () {
+    $this->ana->forceFill(['timezone' => 'America/Sao_Paulo']);
+
+    Livewire::test(ListPosts::class)
+        ->set('activeTab', "saved-{$this->drafts->id}")
+        ->mountTableAction('savedFilterReport')
+        ->assertTableActionDataSet(['timezone' => 'America/Sao_Paulo'])
+        ->callMountedTableAction();
+
+    subscribe($this->bob, $this->drafts, ['timezone' => 'Europe/Lisbon']);
+    subscribe($this->bob, $this->drafts, ['timezone' => 'UTC']);
+
+    expect(SavedFilterReport::query()->forUser($this->ana)->sole()->timezone)->toBe('America/Sao_Paulo')
+        ->and(SavedFilterReport::query()->forUser($this->bob)->sole()->timezone)->toBeNull(); // the app's zone
+});
+
 it('shows what is scheduled for the picked view', function () {
     subscribe($this->ana, $this->drafts, ['frequency' => 'daily', 'time' => '07:30']);
 

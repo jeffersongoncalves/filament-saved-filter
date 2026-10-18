@@ -27,6 +27,7 @@ return [
         'frequency' => 'Chastota',
         'day' => 'Kun',
         'time' => 'Vaqt',
+        'timezone' => 'Vaqt mintaqasi',
         'format' => 'Format',
         'skip_empty' => 'Yozuv bo\'lmasa yubormaslik',
         'on_conflict' => 'Shu nomli ko\'rinish bo\'lsa',

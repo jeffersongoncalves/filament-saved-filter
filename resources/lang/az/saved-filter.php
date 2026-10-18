@@ -27,6 +27,7 @@ return [
         'frequency' => 'Tezlik',
         'day' => 'Gün',
         'time' => 'Saat',
+        'timezone' => 'Saat qurşağı',
         'format' => 'Format',
         'skip_empty' => 'Qeyd yoxdursa göndərmə',
         'on_conflict' => 'Eyni adlı görünüş varsa',

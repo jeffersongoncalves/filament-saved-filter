@@ -27,6 +27,7 @@ return [
         'frequency' => 'Frequentie',
         'day' => 'Dag',
         'time' => 'Tijd',
+        'timezone' => 'Tijdzone',
         'format' => 'Formaat',
         'skip_empty' => 'Niet versturen als er geen records zijn',
         'on_conflict' => 'Als een weergave dezelfde naam heeft',
