@@ -61,6 +61,7 @@ return [
         'time' => 'Time',
         'format' => 'Format',
         'skip_empty' => 'Don\'t send when there are no records',
+        'on_conflict' => 'When a view has the same name',
     ],
     'colors' => [
         'primary' => 'Primary',
@@ -79,6 +80,11 @@ return [
         'daily' => 'Daily',
         'weekly' => 'Weekly',
         'monthly' => 'Monthly',
+    ],
+    'conflicts' => [
+        'overwrite' => 'Overwrite it',
+        'skip' => 'Skip it',
+        'copy' => 'Import as a copy',
     ],
     'tabs' => [
         'all' => 'All',

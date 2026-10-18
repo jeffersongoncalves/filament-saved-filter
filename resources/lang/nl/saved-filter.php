@@ -29,9 +29,11 @@ return [
         'time' => 'Tijd',
         'format' => 'Formaat',
         'skip_empty' => 'Niet versturen als er geen records zijn',
+        'on_conflict' => 'Als een weergave dezelfde naam heeft',
     ],
     'colors' => ['primary' => 'Primair', 'gray' => 'Grijs', 'info' => 'Info', 'success' => 'Succes', 'warning' => 'Waarschuwing', 'danger' => 'Gevaar'],
     'badges' => ['preset' => 'Voorinstelling', 'shared' => 'Gedeeld', 'modified' => 'Gewijzigd'],
     'frequencies' => ['daily' => 'Dagelijks', 'weekly' => 'Wekelijks', 'monthly' => 'Maandelijks'],
+    'conflicts' => ['overwrite' => 'Overschrijven', 'skip' => 'Overslaan', 'copy' => 'Als kopie importeren'],
     'tabs' => ['all' => 'Alle'],
 ];

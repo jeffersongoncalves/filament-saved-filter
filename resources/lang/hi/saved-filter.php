@@ -29,9 +29,11 @@ return [
         'time' => 'समय',
         'format' => 'फ़ॉर्मेट',
         'skip_empty' => 'कोई रिकॉर्ड न हो तो न भेजें',
+        'on_conflict' => 'जब उसी नाम का व्यू हो',
     ],
     'colors' => ['primary' => 'प्राथमिक', 'gray' => 'ग्रे', 'info' => 'जानकारी', 'success' => 'सफलता', 'warning' => 'चेतावनी', 'danger' => 'खतरा'],
     'badges' => ['preset' => 'प्रीसेट', 'shared' => 'साझा', 'modified' => 'बदला गया'],
     'frequencies' => ['daily' => 'दैनिक', 'weekly' => 'साप्ताहिक', 'monthly' => 'मासिक'],
+    'conflicts' => ['overwrite' => 'उसे बदलें', 'skip' => 'छोड़ें', 'copy' => 'कॉपी के रूप में इम्पोर्ट करें'],
     'tabs' => ['all' => 'सभी'],
 ];

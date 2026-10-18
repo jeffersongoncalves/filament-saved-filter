@@ -935,6 +935,14 @@ trait HasSavedFilters
                     ->maxSize(1024)
                     ->storeFiles(false)
                     ->required(),
+                Select::make('on_conflict')
+                    ->label(__('filament-saved-filter::saved-filter.fields.on_conflict'))
+                    ->options(collect(['overwrite', 'skip', 'copy'])
+                        ->mapWithKeys(fn (string $strategy) => [$strategy => __("filament-saved-filter::saved-filter.conflicts.{$strategy}")])
+                        ->all())
+                    ->default('overwrite')
+                    ->selectablePlaceholder(false)
+                    ->required(),
             ])
             ->action(function (array $data) use ($plugin): void {
                 $file = $data['file'] ?? null;
@@ -953,12 +961,51 @@ trait HasSavedFilters
                     ->values()
                     ->all();
 
+                $rows = $this->resolveSavedFilterImportConflicts($rows, (string) ($data['on_conflict'] ?? 'overwrite'));
+
                 $imported = $this->getSavedFilterModel()::import($rows, $this->getSavedFilterOwner(), $this->getSavedFilterTenant(), locked: false);
 
                 $this->flushSavedFilters();
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.import.notification', ['count' => $imported->count()]))->send();
             });
+    }
+
+    /**
+     * Rows named like one of the user's views on this table: "overwrite" leaves them to SavedFilter::import() (it
+     * matches by name), "skip" drops them, "copy" renames them "Name (2)", "Name (3)"…
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array<int, array<string, mixed>>
+     */
+    protected function resolveSavedFilterImportConflicts(array $rows, string $strategy): array
+    {
+        if (! in_array($strategy, ['skip', 'copy'], true)) {
+            return $rows;
+        }
+
+        $taken = $this->getSavedFilterQuery()->ownedBy($this->getSavedFilterOwner())->pluck('name')->flip()->all();
+        $resolved = [];
+
+        foreach ($rows as $row) {
+            $name = (string) $row['name'];
+
+            if (isset($taken[$name])) {
+                if ($strategy === 'skip') {
+                    continue;
+                }
+
+                for ($n = 2; isset($taken[$name]); $n++) {
+                    $suffix = " ({$n})";
+                    $name = mb_substr((string) $row['name'], 0, 255 - mb_strlen($suffix)).$suffix;
+                }
+            }
+
+            $taken[$name] = true;
+            $resolved[] = [...$row, 'name' => $name];
+        }
+
+        return $resolved;
     }
 
     /**

@@ -29,9 +29,11 @@ return [
         'time' => 'Vaqt',
         'format' => 'Format',
         'skip_empty' => 'Yozuv bo\'lmasa yubormaslik',
+        'on_conflict' => 'Shu nomli ko\'rinish bo\'lsa',
     ],
     'colors' => ['primary' => 'Asosiy', 'gray' => 'Kulrang', 'info' => 'Maʼlumot', 'success' => 'Muvaffaqiyat', 'warning' => 'Ogohlantirish', 'danger' => 'Xavf'],
     'badges' => ['preset' => 'Andoza', 'shared' => 'Ulashilgan', 'modified' => 'O\'zgartirilgan'],
     'frequencies' => ['daily' => 'Har kuni', 'weekly' => 'Har hafta', 'monthly' => 'Har oy'],
+    'conflicts' => ['overwrite' => 'Ustidan yozish', 'skip' => 'O\'tkazib yuborish', 'copy' => 'Nusxa sifatida import qilish'],
     'tabs' => ['all' => 'Hammasi'],
 ];
