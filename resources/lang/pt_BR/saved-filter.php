@@ -61,6 +61,7 @@ return [
         'time' => 'Horário',
         'format' => 'Formato',
         'skip_empty' => 'Não enviar se não houver registros',
+        'on_conflict' => 'Quando uma visualização tem o mesmo nome',
     ],
     'colors' => [
         'primary' => 'Primária',
@@ -79,6 +80,11 @@ return [
         'daily' => 'Diário',
         'weekly' => 'Semanal',
         'monthly' => 'Mensal',
+    ],
+    'conflicts' => [
+        'overwrite' => 'Substituir',
+        'skip' => 'Ignorar',
+        'copy' => 'Importar como cópia',
     ],
     'tabs' => [
         'all' => 'Todas',

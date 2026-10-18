@@ -29,9 +29,11 @@ return [
         'time' => '时间',
         'format' => '格式',
         'skip_empty' => '没有记录时不发送',
+        'on_conflict' => '存在同名视图时',
     ],
     'colors' => ['primary' => '主要', 'gray' => '灰色', 'info' => '信息', 'success' => '成功', 'warning' => '警告', 'danger' => '危险'],
     'badges' => ['preset' => '预设', 'shared' => '共享', 'modified' => '已修改'],
     'frequencies' => ['daily' => '每天', 'weekly' => '每周', 'monthly' => '每月'],
+    'conflicts' => ['overwrite' => '覆盖', 'skip' => '跳过', 'copy' => '作为副本导入'],
     'tabs' => ['all' => '全部'],
 ];

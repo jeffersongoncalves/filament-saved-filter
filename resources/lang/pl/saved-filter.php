@@ -29,9 +29,11 @@ return [
         'time' => 'Godzina',
         'format' => 'Format',
         'skip_empty' => 'Nie wysyłaj, gdy nie ma rekordów',
+        'on_conflict' => 'Gdy widok ma tę samą nazwę',
     ],
     'colors' => ['primary' => 'Podstawowy', 'gray' => 'Szary', 'info' => 'Informacja', 'success' => 'Sukces', 'warning' => 'Ostrzeżenie', 'danger' => 'Niebezpieczeństwo'],
     'badges' => ['preset' => 'Szablon', 'shared' => 'Udostępniony', 'modified' => 'Zmieniony'],
     'frequencies' => ['daily' => 'Codziennie', 'weekly' => 'Co tydzień', 'monthly' => 'Co miesiąc'],
+    'conflicts' => ['overwrite' => 'Nadpisz', 'skip' => 'Pomiń', 'copy' => 'Importuj jako kopię'],
     'tabs' => ['all' => 'Wszystkie'],
 ];
