@@ -7,6 +7,7 @@ use Filament\Actions\Exports\Exporter;
 use Filament\Actions\Exports\Models\Export;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\HasTenants;
+use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -29,7 +30,7 @@ class FilamentReportBuilder implements BuildsSavedFilterReports
         $panel = Filament::getPanels()[$context['panel'] ?? ''] ?? null;
         $page = $context['page'] ?? null;
 
-        if (! $panel || ! $user instanceof Authenticatable || ! is_string($page) || ! class_exists($page)
+        if (! $panel || ! $user instanceof Authenticatable || ! is_string($page) || ! is_subclass_of($page, ListRecords::class)
             || ! in_array(HasSavedFilters::class, class_uses_recursive($page), true)) {
             return null;
         }

@@ -6,6 +6,9 @@ parameters:
     paths:
         - src
         - tests/Fixtures
+    excludePaths:
+        # A page without HasTabs or a resource: the trait only reaches those behind runtime checks PHPStan can't follow.
+        - tests/Fixtures/PostsReport.php
     tmpDir: build/phpstan
     checkOctaneCompatibility: true
     checkModelProperties: false
