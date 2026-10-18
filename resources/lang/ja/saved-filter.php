@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'ビューを管理', 'description' => 'ビューの名前変更、並べ替え、デフォルトの設定、使わなくなったビューの削除ができます。', 'submit' => '変更を保存', 'notification' => 'ビューを更新しました'],
         'email' => ['label' => 'このビューをメールで送信', 'notification' => 'レポートを受信トレイに送信しています。'],
         'report' => ['label' => 'メールレポート', 'description' => 'このビューを定期的にメールで受け取ります。受け取るのはあなただけです。', 'notification' => 'メールレポートを保存しました'],
+        'my_reports' => ['label' => 'メールレポート', 'description' => 'すべてのテーブルからメールで受け取るレポートをオン・オフ・削除します。', 'notification' => 'レポートを更新しました'],
         'export' => ['label' => 'ビューをエクスポート'],
         'import' => ['label' => 'ビューをインポート', 'notification' => 'インポートしたビュー: :count', 'invalid' => 'ファイルは有効なビューのエクスポートではありません。'],
     ],

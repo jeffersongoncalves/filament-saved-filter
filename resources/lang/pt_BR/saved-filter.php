@@ -32,6 +32,11 @@ return [
             'description' => 'Receba esta visualização por email de forma agendada. Só você recebe.',
             'notification' => 'Relatório por email salvo',
         ],
+        'my_reports' => [
+            'label' => 'Meus relatórios por email',
+            'description' => 'Ative, desative ou remova os relatórios que você recebe por email, de todas as tabelas.',
+            'notification' => 'Relatórios atualizados',
+        ],
         'export' => [
             'label' => 'Exportar visualizações',
         ],

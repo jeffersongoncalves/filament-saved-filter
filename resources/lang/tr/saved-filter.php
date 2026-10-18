@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Görünümleri yönet', 'description' => 'Artık kullanmadığınız görünümleri yeniden adlandırın, sıralayın, varsayılanı belirleyin veya silin.', 'submit' => 'Değişiklikleri kaydet', 'notification' => 'Görünümler güncellendi'],
         'email' => ['label' => 'Görünümü e-postayla gönder', 'notification' => 'Rapor gelen kutunuza gönderiliyor.'],
         'report' => ['label' => 'E-posta raporu', 'description' => 'Bu görünümü bir programa göre e-postayla alın. Yalnızca siz alırsınız.', 'notification' => 'E-posta raporu kaydedildi'],
+        'my_reports' => ['label' => 'E-posta raporlarım', 'description' => 'Tüm tablolardan e-postayla aldığınız raporları açın, kapatın veya kaldırın.', 'notification' => 'Raporlar güncellendi'],
         'export' => ['label' => 'Görünümleri dışa aktar'],
         'import' => ['label' => 'Görünümleri içe aktar', 'notification' => 'İçe aktarılan görünümler: :count', 'invalid' => 'Dosya geçerli bir görünüm dışa aktarımı değil.'],
     ],

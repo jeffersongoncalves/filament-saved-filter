@@ -412,6 +412,7 @@ trait HasSavedFilters
                 $this->getManageSavedFiltersAction(),
                 $this->getEmailSavedFilterAction(),
                 $this->getSavedFilterReportAction(),
+                $this->getManageSavedFilterReportsAction(),
                 $this->getExportSavedFiltersAction(),
                 $this->getImportSavedFiltersAction(),
             ])->dropdown(false),
@@ -742,6 +743,78 @@ trait HasSavedFilters
                 ]);
 
                 Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.report.notification'))->send();
+            });
+    }
+
+    /**
+     * This user's email reports on every table of the current tenant, to turn them on or off (or drop them) in one place.
+     *
+     * @return Collection<int, SavedFilterReport>
+     */
+    protected function getUserSavedFilterReports(): Collection
+    {
+        $owner = $this->getSavedFilterOwner();
+
+        if (! $owner) {
+            return new Collection;
+        }
+
+        return SavedFilterReport::query()
+            ->forUser($owner)
+            ->whereHas('savedFilter', fn (Builder $query) => $query->forTenant($this->getSavedFilterTenant()))
+            ->with('savedFilter')
+            ->orderBy('id')
+            ->get();
+    }
+
+    protected function getManageSavedFilterReportsAction(): Action
+    {
+        $label = function (SavedFilterReport $report): string {
+            $resource = (string) $report->savedFilter?->resource;
+            $table = class_exists($resource) && method_exists($resource, 'getPluralModelLabel') ? $resource::getPluralModelLabel() : $resource;
+
+            return "{$table} · {$report->savedFilter?->name} — {$report->describeSchedule()}";
+        };
+
+        return Action::make('manageSavedFilterReports')
+            ->label(__('filament-saved-filter::saved-filter.actions.my_reports.label'))
+            ->modalHeading(__('filament-saved-filter::saved-filter.actions.my_reports.label'))
+            ->modalDescription(__('filament-saved-filter::saved-filter.actions.my_reports.description'))
+            ->icon('heroicon-o-inbox-stack')
+            ->slideOver()
+            ->visible(fn () => $this->hasSavedFilterReports() && $this->getUserSavedFilterReports()->isNotEmpty())
+            ->fillForm(fn () => [
+                'reports' => $this->getUserSavedFilterReports()
+                    ->map(fn (SavedFilterReport $report) => ['id' => $report->getKey(), 'label' => $label($report), 'is_active' => $report->is_active])
+                    ->all(),
+            ])
+            ->schema([
+                Repeater::make('reports')
+                    ->hiddenLabel()
+                    ->schema([
+                        Hidden::make('id'),
+                        Hidden::make('label'),
+                        Toggle::make('is_active')->label(__('filament-saved-filter::saved-filter.fields.report_active')),
+                    ])
+                    ->itemLabel(fn (array $state): ?string => $state['label'] ?? null)
+                    ->addable(false)
+                    ->reorderable(false),
+            ])
+            ->action(function (array $data): void {
+                // Ids come from the browser: only this user's reports are touched.
+                $reports = $this->getUserSavedFilterReports()->keyBy('id');
+                $kept = [];
+
+                foreach ($data['reports'] ?? [] as $item) {
+                    if ($report = $reports->get((int) ($item['id'] ?? 0))) {
+                        $report->update(['is_active' => (bool) ($item['is_active'] ?? false)]);
+                        $kept[] = $report->getKey();
+                    }
+                }
+
+                $reports->except($kept)->each->delete();
+
+                Notification::make()->success()->title(__('filament-saved-filter::saved-filter.actions.my_reports.notification'))->send();
             });
     }
 

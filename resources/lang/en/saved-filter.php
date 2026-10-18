@@ -32,6 +32,11 @@ return [
             'description' => 'Get this view by email on a schedule. Only you receive it.',
             'notification' => 'Email report saved',
         ],
+        'my_reports' => [
+            'label' => 'My email reports',
+            'description' => 'Turn on, turn off or remove the reports you get by email, from every table.',
+            'notification' => 'Reports updated',
+        ],
         'export' => [
             'label' => 'Export views',
         ],

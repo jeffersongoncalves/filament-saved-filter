@@ -10,6 +10,7 @@ return [
         'manage' => ['label' => 'Gerir vistas', 'description' => 'Mude o nome, reordene, defina a predefinida ou elimine as vistas que já não usa.', 'submit' => 'Guardar alterações', 'notification' => 'Vistas atualizadas'],
         'email' => ['label' => 'Enviar vista por email', 'notification' => 'O relatório está a caminho da sua caixa de entrada.'],
         'report' => ['label' => 'Relatório por email', 'description' => 'Receba esta vista por email de forma agendada. Só você a recebe.', 'notification' => 'Relatório por email guardado'],
+        'my_reports' => ['label' => 'Os meus relatórios por email', 'description' => 'Ative, desative ou remova os relatórios que recebe por email, de todas as tabelas.', 'notification' => 'Relatórios atualizados'],
         'export' => ['label' => 'Exportar vistas'],
         'import' => ['label' => 'Importar vistas', 'notification' => 'Vistas importadas: :count', 'invalid' => 'O ficheiro não é uma exportação de vistas válida.'],
     ],
